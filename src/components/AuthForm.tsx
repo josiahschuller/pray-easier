@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import toast from 'react-hot-toast';
+import { checkAuthTokens } from '@/utils/auth-debug';
 
 export function AuthForm() {
   const [isSignIn, setIsSignIn] = useState(true);
@@ -11,23 +12,57 @@ export function AuthForm() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, user } = useAuth();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Add an effect to handle redirection when user state changes
+  useEffect(() => {
+    if (user) {
+      router.push('/dashboard');
+    }
+  }, [user, router]);  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
       if (isSignIn) {
+        // Sign in the user
         await signIn(email, password);
+        
+        // Wait a moment for cookies to be set
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Debug authentication tokens
+        console.log('After sign-in:');
+        checkAuthTokens();
+        
         toast.success('Successfully signed in!');
+        
+        // Use a standard navigation to dashboard
+        router.push('/dashboard');
       } else {
+        // Sign up the user
         await signUp(email, password);
+        
         toast.success('Account created! Please check your email for verification.');
+        // Don't redirect immediately after signup if email verification is required
       }
-      router.push('/dashboard');
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'An error occurred');
+      if (error instanceof Error) {
+        let errorMessage = error.message;
+
+        // Handle common Supabase auth errors with more user-friendly messages
+        if (errorMessage.includes('Invalid login credentials')) {
+          errorMessage = 'The email or password you entered is incorrect.';
+        } else if (errorMessage.includes('Email not confirmed')) {
+          errorMessage = 'Please check your email and confirm your account before signing in.';
+        } else if (errorMessage.includes('Password should be')) {
+          errorMessage = 'Password should be at least 6 characters.';
+        }
+
+        toast.error(errorMessage);
+      } else {
+        toast.error('An unexpected error occurred. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -91,4 +126,4 @@ export function AuthForm() {
       </div>
     </form>
   );
-} 
+}

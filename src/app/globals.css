@@ -26,3 +26,19 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Add spinner animation if it's not already included by Tailwind */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spinner {
+  border-color: #e5e7eb;
+  border-top-color: #6366f1;
+  animation: spin 1s linear infinite;
+}

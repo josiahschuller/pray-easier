@@ -28,6 +28,7 @@ export function PrayerList() {
       if (error) throw error;
       setPrayers(data || []);
     } catch (error) {
+      console.error('Error loading prayers:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to load prayers');
     } finally {
       setLoading(false);
