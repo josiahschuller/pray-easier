@@ -1,71 +1,45 @@
 import { createClient } from '@supabase/supabase-js';
 
-if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
-  throw new Error('Missing env.NEXT_PUBLIC_SUPABASE_URL');
-}
-if (!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-  throw new Error('Missing env.NEXT_PUBLIC_SUPABASE_ANON_KEY');
-}
+class SupabaseService {
+  supabase;
 
-// Helper function for cookies
-const getCookie = (name: string) => {
-  if (typeof document === 'undefined') return null;
-  
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop()?.split(';').shift() || null;
-  return null;
-};
-
-// Custom storage implementation
-const customStorage = {
-  getItem: (key: string) => {
-    // Try to get from cookie first for 'access_token' and 'refresh_token'
-    if (key === 'supabase.auth.token' || key.includes('access_token')) {
-      const cookieValue = getCookie('sb-access-token');
-      if (cookieValue) {
-        console.log('Retrieved access token from cookie');
-        return cookieValue;
-      }
+  constructor() {
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+      throw new Error('Missing env.NEXT_PUBLIC_SUPABASE_URL');
     }
-    
-    if (key === 'supabase.auth.refreshToken' || key.includes('refresh_token')) {
-      const cookieValue = getCookie('sb-refresh-token');
-      if (cookieValue) {
-        console.log('Retrieved refresh token from cookie');
-        return cookieValue;
-      }
+    if (!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+      throw new Error('Missing env.NEXT_PUBLIC_SUPABASE_ANON_KEY');
     }
-    
-    // Fall back to localStorage
-    if (typeof window !== 'undefined') {
-      return window.localStorage.getItem(key);
-    }
-    return null;
-  },
-  setItem: (key: string, value: string) => {
-    if (typeof window !== 'undefined') {
-      window.localStorage.setItem(key, value);
-    }
-  },
-  removeItem: (key: string) => {
-    if (typeof window !== 'undefined') {
-      window.localStorage.removeItem(key);
-    }
+    this.supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    );
   }
-};
 
-console.log('Creating Supabase client with custom storage');
+  getUserByEmailAddress = async (emailAddress: string) => {
+    const { data, error } = await this.supabase
+      .from('users')
+      .select()
+      .eq('email_address', emailAddress)
+      .single();
 
-export const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-  {
-    auth: {
-      persistSession: true,
-      autoRefreshToken: true,
-      detectSessionInUrl: true,
-      storage: customStorage
+    if (error) {
+      throw new Error(`Error fetching user: ${error.message}`);
     }
-  }
-);
+    return data;
+  };
+
+  createUser = async (emailAddress: string, hashedPassword: string, salt: string, name: string, accessToken: string) => {
+    const { data, error } = await this.supabase
+      .from('users')
+      .insert([{ email_address: emailAddress, password: hashedPassword, salt: salt, name: name, access_token: accessToken }])
+      .single();
+
+    if (error) {
+      throw new Error(`Error creating user: ${error.message}`);
+    }
+    return data;
+  };
+}
+
+export const supabaseService = new SupabaseService();
