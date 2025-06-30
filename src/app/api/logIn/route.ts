@@ -34,7 +34,7 @@ export async function POST(request: Request) {
     }
 
     // User exists, so verify the password
-    const { password_hash: storedPassword, salt: storedSalt, access_token: accessToken } = existingUser;
+    const { id, passwordHash: storedPassword, salt: storedSalt, accessToken } = existingUser;
     const hashedPassword = hashPassword(password, storedSalt);
 
     if (hashedPassword !== storedPassword) {
@@ -49,6 +49,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         message: 'Login successful',
+        id: id,
         accessToken: accessToken,
         name: existingUser.name,
       },

@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/services/supabase';
 import toast from 'react-hot-toast';
 import type { PrayerPoint } from '@/types/database';
 
@@ -19,14 +18,33 @@ export function PrayerList() {
 
   const loadPrayers = async () => {
     try {
-      const { data, error } = await supabase
-        .from('prayer_points')
-        .select('*')
-        .eq('user_id', user?.id)
-        .order('created_at', { ascending: false });
+      setLoading(true);
 
-      if (error) throw error;
-      setPrayers(data || []);
+      // Call the API endpoint instead of directly querying Supabase
+      const response = await fetch(`/api/prayerPoints?userId=${user?.id}`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${user?.accessToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to fetch prayer points');
+      }
+
+      const data = await response.json();
+
+      // Flatten the prayer points from categories
+      const allPrayers = data.prayerPoints.flatMap((category) =>
+        category.prayerPoints.map((point) => ({
+          ...point,
+          category_id: category.name, // Using category name instead of ID for display
+        }))
+      );
+
+      setPrayers(allPrayers || []);
     } catch (error) {
       console.error('Error loading prayers:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to load prayers');
@@ -36,16 +54,12 @@ export function PrayerList() {
   };
 
   const handleResolve = async (prayerId: string) => {
-    try {
-      const { error } = await supabase
-        .from('prayer_points')
-        .update({
-          is_resolved: true,
-          resolved_at: new Date().toISOString(),
-        })
-        .eq('id', prayerId);
 
-      if (error) throw error;
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to resolve prayer point');
+      }
+
       setPrayers((prev) =>
         prev.map((prayer) =>
           prayer.id === prayerId
@@ -114,4 +128,4 @@ export function PrayerList() {
       )}
     </div>
   );
-} 
+}

@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 
 // Define types
 type User = {
+  id: number;
   emailAddress: string;
   name: string;
   accessToken: string;
@@ -98,6 +99,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       
       const userData: User = {
+        id: data.id,
         emailAddress,
         name: data.name || 'User', // Fallback if name isn't returned
         accessToken: data.accessToken,
@@ -163,6 +165,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       
       const userData: User = {
+        id: data.id,
         emailAddress,
         name,
         accessToken,

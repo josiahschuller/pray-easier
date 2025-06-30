@@ -41,14 +41,17 @@ export async function POST(request: Request) {
     const salt = generateSalt();
     const hashedPassword = hashPassword(password, salt);
     const accessToken = generateAccessToken();
-    await supabaseService.createUser(emailAddress, hashedPassword, salt, name, accessToken);
+    const newUser = await supabaseService.createUser(emailAddress, hashedPassword, salt, name, accessToken);
+
+    // TODO create default prayer categories and prayer points for the new user
 
     console.log('Signup successful for:', emailAddress);
     return NextResponse.json(
       { 
         message: 'User created successfully',
+        id: newUser.id,
         accessToken,
-        name
+        name,
       },
       { status: 201 }
     );
