@@ -1,156 +1,207 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState } from 'react';
-import { User } from '@supabase/supabase-js';
-import { supabase } from '@/services/supabase';
+
+// Define types
+type User = {
+  emailAddress: string;
+  name: string;
+  accessToken: string;
+};
 
 type AuthContextType = {
   user: User | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string) => Promise<void>;
-  signOut: () => Promise<void>;
+  error: string | null;
+  login: (emailAddress: string, password: string) => Promise<void>;
+  signup: (emailAddress: string, password: string, name: string) => Promise<void>;
+  logout: () => void;
+  clearError: () => void;
 };
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+// Create context with default values
+const AuthContext = createContext<AuthContextType>({
+  user: null,
+  loading: false,
+  error: null,
+  login: async () => {},
+  signup: async () => {},
+  logout: () => {},
+  clearError: () => {},
+});
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Check for existing user session on mount
   useEffect(() => {
-    // Function to initialize the auth state
-    const initAuth = async () => {
+    const accessToken = localStorage.getItem('accessToken');
+    const userData = localStorage.getItem('userData');
+    
+    if (accessToken && userData) {
       try {
-        console.log('Starting auth initialization...');
-        
-        // Check active sessions and sets the user
-        const { data: { session } } = await supabase.auth.getSession();
-        
-        // Also check for cookies as a fallback
-        const hasCookies = typeof document !== 'undefined' && 
-                         (document.cookie.includes('sb-access-token') || 
-                          document.cookie.includes('sb-refresh-token'));
-        
-        console.log('Auth initialization check:', { 
-          hasSession: !!session, 
-          hasCookies,
-          userData: session?.user ? 'User present' : 'No user'
-        });
-        
-        if (session?.user) {
-          console.log('Setting user from session');
-          setUser(session.user);
-          
-          // Store session in localStorage as a backup
-          localStorage.setItem('supabase-auth-session', JSON.stringify(session));
-          
-          // Ensure cookies are set
-          if (session.access_token && session.refresh_token) {
-            document.cookie = `sb-access-token=${session.access_token}; path=/; max-age=3600; secure; samesite=lax`;
-            document.cookie = `sb-refresh-token=${session.refresh_token}; path=/; max-age=7776000; secure; samesite=lax`;
-          }
-        } else if (hasCookies) {
-          console.log('No session but cookies found, trying to refresh auth...');
-          
-          // Force a refresh of the session
-          await supabase.auth.refreshSession();
-          
-          // Try to get user again after refresh
-          const { data: userData } = await supabase.auth.getUser();
-          
-          if (userData?.user) {
-            console.log('Successfully retrieved user after refresh');
-            setUser(userData.user);
-          } else {
-            console.error('Failed to get user even after refresh with cookies present');
-          }
-        } else {
-          console.log('No session or cookies found, user is not authenticated');
-        }
-      } catch (error) {
-        console.error('Error initializing auth:', error);
-      } finally {
-        setLoading(false);
+        setUser(JSON.parse(userData));
+      } catch (e) {
+        // Invalid stored data
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('userData');
       }
-    };
-
-    // Run the initialization
-    initAuth();
-
-    // Listen for changes on auth state
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      console.log('Auth state changed:', { hasUser: !!session?.user });
-      setUser(session?.user ?? null);
-        // Update cookies when auth state changes
-      if (session?.access_token && session?.refresh_token) {
-        document.cookie = `sb-access-token=${session.access_token}; path=/; max-age=3600; secure; samesite=lax`;
-        document.cookie = `sb-refresh-token=${session.refresh_token}; path=/; max-age=7776000; secure; samesite=lax`;
-      }
-    });
-
-    return () => subscription.unsubscribe();
+    }
   }, []);
 
-  const signIn = async (email: string, password: string) => {
-    const { error, data } = await supabase.auth.signInWithPassword({
-      email: email,
-      password: password
-    });
-    
-    if (error) {
-      console.error('Authentication error:', error.message);
-      throw error;
-    }
+  const clearError = () => setError(null);
 
-    // Update the user state immediately after successful sign-in
-    if (data?.user) {
-      setUser(data.user);
+  const login = async (emailAddress: string, password: string) => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      console.log('Attempting login for:', emailAddress);
       
-      // Manually set cookies for middleware
-      if (data.session) {
-        // Set session token in a cookie
-        document.cookie = `sb-access-token=${data.session.access_token}; path=/; max-age=3600; secure; samesite=lax`;
-        document.cookie = `sb-refresh-token=${data.session.refresh_token}; path=/; max-age=7776000; secure; samesite=lax`;
+      // Use lowercase API path 
+      const apiPath = '/api/logIn';
+      console.log('Using API path:', apiPath);
+      
+      const response = await fetch(apiPath, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ emailAddress, password }),
+      });
+      
+      console.log('Login response status:', response.status);
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+      
+      const responseText = await response.text();
+      
+      // Try to parse JSON from the text response
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (jsonError) {
+        console.error('JSON parsing error:', jsonError);
+        throw new Error('Server returned invalid JSON');
       }
+      
+      // Check if response was not ok
+      if (!response.ok) {
+        throw new Error(data.error || `Login failed: ${response.status}`);
+      }
+      
+      // Validate the response data
+      if (!data.accessToken) {
+        throw new Error('Invalid server response: missing access token');
+      }
+      
+      const userData: User = {
+        emailAddress,
+        name: data.name || 'User', // Fallback if name isn't returned
+        accessToken: data.accessToken,
+      };
+      
+      // Save to localStorage
+      localStorage.setItem('accessToken', data.accessToken);
+      localStorage.setItem('userData', JSON.stringify(userData));
+      
+      setUser(userData);
+    } catch (err) {
+      console.error('Login error:', err);
+      setError(err instanceof Error ? err.message : 'An unknown error occurred');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const signUp = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signUp(
-      {
-        email: email,
-        password: password
-      }
-    );
+  const signup = async (emailAddress: string, password: string, name: string) => {
+    setLoading(true);
+    setError(null);
     
-    if (error) {
-      console.error('Registration error:', error.message);
-      throw error;
+    try {
+      console.log('Attempting signup for:', emailAddress);
+      
+      // Use lowercase API path
+      const apiPath = '/api/signUp';
+      console.log('Using API path:', apiPath);
+      
+      const response = await fetch(apiPath, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ emailAddress, password, name }),
+      });
+      
+      console.log('Signup response status:', response.status);
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+      
+      const responseText = await response.text();
+      
+      // Try to parse JSON from the text response
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (jsonError) {
+        console.error('JSON parsing error:', jsonError);
+        throw new Error('Server returned invalid JSON');
+      }
+      
+      // Check if response was not ok
+      if (!response.ok) {
+        throw new Error(data.error || `Signup failed: ${response.status}`);
+      }
+      
+      // Access token could be directly in the response or nested in a body property
+      const accessToken = data.accessToken || data.body?.accessToken;
+      
+      if (!accessToken) {
+        throw new Error('Invalid server response: missing access token');
+      }
+      
+      const userData: User = {
+        emailAddress,
+        name,
+        accessToken,
+      };
+      
+      // Save to localStorage
+      localStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('userData', JSON.stringify(userData));
+      
+      setUser(userData);
+    } catch (err) {
+      console.error('Signup error:', err);
+      setError(err instanceof Error ? err.message : 'An unknown error occurred');
+    } finally {
+      setLoading(false);
     }
   };
-  const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    
-    // Manually clear auth cookies
-    document.cookie = 'sb-access-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; secure; samesite=lax';
-    document.cookie = 'sb-refresh-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; secure; samesite=lax';
-    
-    if (error) {
-      console.error('Sign out error:', error);
-      throw error;
-    }
+
+  const logout = () => {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('userData');
+    setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ user, loading, error, login, signup, logout, clearError }}>
       {children}
     </AuthContext.Provider>
   );
 }
 
-export function useAuth() {
+// Custom hook for using the auth context
+export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-}
+};
+
+export default AuthContext;
+

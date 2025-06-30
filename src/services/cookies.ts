@@ -1,4 +1,4 @@
-
+// TODO use this service instead of local storage
 
 class CookiesService {
   private cookies: Record<string, string> = {};

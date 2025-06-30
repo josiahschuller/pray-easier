@@ -5,7 +5,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { PrayerInput } from '@/components/PrayerInput';
 import { PrayerList } from '@/components/PrayerList';
 import { PrayerSession } from '@/components/PrayerSession';
-import { checkAuthTokens } from '@/utils/auth-debug';
 
 export default function DashboardPage() {
   const { user, loading } = useAuth();
@@ -22,12 +21,6 @@ export default function DashboardPage() {
     if (isClientSide) {
       console.log('DashboardPage mounted');
       console.log('User:', user ? `Logged in as ${user.email}` : 'Not logged in');
-      checkAuthTokens();
-      
-      // Check cookies directly
-      const hasCookies = document.cookie.includes('sb-access-token') || 
-                       document.cookie.includes('sb-refresh-token');
-      console.log('Has auth cookies:', hasCookies);
       
       // Don't reload the page, it causes an infinite loop
     }
@@ -47,32 +40,15 @@ export default function DashboardPage() {
   if (!user) {
     console.error('⚠️ No user found!');
     
-    // Instead of returning null, show a message about the authentication state
+    // Redirect to auth page
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full">
-          <h2 className="text-xl font-semibold text-red-600 mb-4">Authentication Issue</h2>
-          <p className="mb-4">
-            You appear to have authentication cookies, but the user session couldn't be loaded properly.
-          </p>
-          <div className="bg-gray-100 p-4 rounded mb-4 text-sm font-mono overflow-auto">
-            <p>Auth Cookies: {document.cookie.includes('sb-access-token') ? 'Present' : 'Missing'}</p>
-            <p>User State: Missing</p>
-          </div>
-          <div className="flex justify-between">
-            <button
-              onClick={() => window.location.href = '/auth'}
-              className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
-            >
-              Return to Login
-            </button>
-            <button
-              onClick={() => window.location.reload()}
-              className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
-            >
-              Retry
-            </button>
-          </div>
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900">Access Denied</h2>
+          <p className="mt-2 text-gray-700">You must be logged in to access this page.</p>
+          <a href="/auth" className="mt-4 inline-block px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+            Go to Login
+          </a>
         </div>
       </div>
     );

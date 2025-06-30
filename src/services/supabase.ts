@@ -5,10 +5,14 @@ class SupabaseService {
 
   constructor() {
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
-      throw new Error('Missing env.NEXT_PUBLIC_SUPABASE_URL');
+      const errorMessage = 'Missing env.NEXT_PUBLIC_SUPABASE_URL';
+      console.error(errorMessage);
+      throw new Error(errorMessage);
     }
     if (!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-      throw new Error('Missing env.NEXT_PUBLIC_SUPABASE_ANON_KEY');
+      const errorMessage = 'Missing env.NEXT_PUBLIC_SUPABASE_ANON_KEY';
+      console.error(errorMessage);
+      throw new Error(errorMessage);
     }
     this.supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -24,7 +28,7 @@ class SupabaseService {
       .single();
 
     if (error) {
-      throw new Error(`Error fetching user: ${error.message}`);
+      return null; // Return null if user not found or error occurs
     }
     return data;
   };
@@ -32,7 +36,7 @@ class SupabaseService {
   createUser = async (emailAddress: string, hashedPassword: string, salt: string, name: string, accessToken: string) => {
     const { data, error } = await this.supabase
       .from('users')
-      .insert([{ email_address: emailAddress, password: hashedPassword, salt: salt, name: name, access_token: accessToken }])
+      .insert([{ email_address: emailAddress, password_hash: hashedPassword, salt: salt, name: name, access_token: accessToken }])
       .single();
 
     if (error) {
