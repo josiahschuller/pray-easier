@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { PrayerInput } from '@/components/PrayerInput';
 import { PrayerList } from '@/components/PrayerList';
@@ -9,22 +9,6 @@ import { PrayerSession } from '@/components/PrayerSession';
 export default function DashboardPage() {
   const { user, loading } = useAuth();
   const [activeView, setActiveView] = useState<'input' | 'list' | 'session'>('list');
-  const [isClientSide, setIsClientSide] = useState(false);
-  
-  // Set isClientSide to true when component mounts
-  useEffect(() => {
-    setIsClientSide(true);
-  }, []);
-  
-  // Add a useEffect to check auth tokens when the component mounts
-  useEffect(() => {
-    if (isClientSide) {
-      console.log('DashboardPage mounted');
-      console.log('User:', user ? `Logged in as ${user.email}` : 'Not logged in');
-      
-      // Don't reload the page, it causes an infinite loop
-    }
-  }, [user, loading, isClientSide]);
 
   // Show loading state while authentication is being determined
   if (loading) {
@@ -36,8 +20,7 @@ export default function DashboardPage() {
         </div>
       </div>
     );
-  }
-  if (!user) {
+  } else if (!user) {
     console.error('⚠️ No user found!');
     
     // Redirect to auth page
@@ -53,6 +36,9 @@ export default function DashboardPage() {
       </div>
     );
   }
+  
+  console.log('DashboardPage mounted');
+  console.log('User:', user ? `Logged in as ${user.emailAddress}` : 'Not logged in');
 
   return (
     <div className="min-h-screen bg-gray-100">

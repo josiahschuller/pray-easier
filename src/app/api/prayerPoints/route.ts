@@ -159,9 +159,10 @@ export async function PATCH(request: Request) {
         
         // Validate status if it's provided
         if (point.status !== undefined) {
-          if (!Object.values(PrayerPointStatus).includes(point.status)) {
+          const validStatusValues = Object.values(PrayerPointStatus);
+          if (!validStatusValues.includes(point.status as PrayerPointStatus)) {
             return NextResponse.json(
-              { error: `Invalid status value. Must be one of: ${Object.values(PrayerPointStatus).join(', ')}` },
+              { error: `Invalid status value. Must be one of: ${validStatusValues.join(', ')}` },
               { status: 400 }
             );
           }

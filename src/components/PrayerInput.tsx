@@ -1,57 +1,56 @@
 'use client';
 
 import { useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { usePrayerPoints } from '@/hooks/usePrayerPoints';
 import TextareaAutosize from 'react-textarea-autosize';
 import toast from 'react-hot-toast';
-import { supabase } from '@/services/supabase';
 
 export function PrayerInput() {
   const [text, setText] = useState('');
-  const [loading, setLoading] = useState(false);
-  const { user } = useAuth();
+  const { addPrayer, loading } = usePrayerPoints();
+
+  // Simple prayer processing function (can be enhanced with AI later)
+  const processPrayerText = (text: string) => {
+    const lines = text.split('\n').filter(line => line.trim());
+    const processed: Array<{ category: string; content: string }> = [];
+    
+    let currentCategory = 'General';
+    
+    for (const line of lines) {
+      const trimmedLine = line.trim();
+      if (!trimmedLine) continue;
+      
+      // Check if line looks like a category header
+      if (trimmedLine.endsWith(':') || trimmedLine.match(/^[A-Z][a-z\s]+$/)) {
+        currentCategory = trimmedLine.replace(':', '').trim();
+      } else {
+        processed.push({
+          category: currentCategory,
+          content: trimmedLine
+        });
+      }
+    }
+    
+    return processed;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!text.trim()) return;
 
-    setLoading(true);
     try {
-      // First, send the text to our API for processing
-      const response = await fetch('/api/process-prayers', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ text }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to process prayers');
+      // Process the prayer text
+      const processedPrayers = processPrayerText(text);
+      
+      // Add each prayer using the hook
+      for (const prayer of processedPrayers) {
+        await addPrayer(prayer.content, prayer.category);
       }
-
-      const prayers = await response.json();
-
-      // Then, save the processed prayers to Supabase
-      const { error } = await supabase.from('prayer_points').insert(
-        prayers.map((prayer: { category: string; content: string }) => ({
-          user_id: user?.id,
-          category_id: prayer.category.toLowerCase(),
-          content: prayer.content,
-          is_resolved: false,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        }))
-      );
-
-      if (error) throw error;
 
       toast.success('Prayer points added successfully!');
       setText('');
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'An error occurred');
-    } finally {
-      setLoading(false);
     }
   };
 

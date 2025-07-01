@@ -1,37 +1,54 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/services/supabase';
+import { usePrayerPoints } from '@/hooks/usePrayerPoints';
 import toast from 'react-hot-toast';
 import type { PrayerPoint } from '@/types/database';
+import { PrayerPointStatus } from '@/types/database';
+
+interface PrayerPointWithCategory extends PrayerPoint {
+  categoryName?: string;
+}
 
 export function PrayerSession() {
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const [currentPrayer, setCurrentPrayer] = useState<PrayerPoint | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [currentPrayer, setCurrentPrayer] = useState<PrayerPointWithCategory | null>(null);
+  const [prayedPrayerIds, setPrayedPrayerIds] = useState<number[]>([]);
   const { user } = useAuth();
+  const { prayers, loading, updatePrayer } = usePrayerPoints();
+
+  const markAsPrayed = async () => {
+    if (!currentPrayer) return;
+    
+    try {
+      await updatePrayer(currentPrayer.id, {
+        lastTimePrayed: new Date()
+      });
+      toast.success('Prayer marked as prayed!');
+    } catch (error) {
+      toast.error('Failed to update prayer');
+    }
+  };
 
   const startSession = async () => {
-    setLoading(true);
     try {
-      // Create a new session
-      const { data: session, error: sessionError } = await supabase
-        .from('prayer_sessions')
-        .insert({
-          user_id: user?.id,
-          start_time: new Date().toISOString(),
-        })
-        .select()
-        .single();
+      // Check if there are any active prayers available
+      const activePrayers = prayers.filter(prayer => prayer.status === PrayerPointStatus.ACTIVE);
+      
+      if (activePrayers.length === 0) {
+        toast.error('No active prayer points available. Please add some prayers first.');
+        return;
+      }
 
-      if (sessionError) throw sessionError;
-      setSessionId(session.id);
+      // Generate a simple session ID (in production, you might want to use a proper session management)
+      const newSessionId = `session_${Date.now()}`;
+      setSessionId(newSessionId);
+      setPrayedPrayerIds([]);
       await getNextPrayer();
+      toast.success('Prayer session started!');
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Failed to start session');
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -39,16 +56,9 @@ export function PrayerSession() {
     if (!sessionId) return;
 
     try {
-      const { error } = await supabase
-        .from('prayer_sessions')
-        .update({
-          end_time: new Date().toISOString(),
-        })
-        .eq('id', sessionId);
-
-      if (error) throw error;
       setSessionId(null);
       setCurrentPrayer(null);
+      setPrayedPrayerIds([]);
       toast.success('Prayer session ended');
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Failed to end session');
@@ -59,30 +69,19 @@ export function PrayerSession() {
     if (!sessionId) return;
 
     try {
-      // Get a random unprayed prayer point
-      const { data: prayedIds } = await supabase
-        .from('prayer_session_points')
-        .select('prayer_point_id')
-        .eq('session_id', sessionId);
+      // Get active prayers that haven't been prayed in this session
+      const availablePrayers = prayers.filter(prayer => 
+        prayer.status === PrayerPointStatus.ACTIVE && 
+        !prayedPrayerIds.includes(prayer.id)
+      );
 
-      const { data: prayers, error } = await supabase
-        .from('prayer_points')
-        .select('*')
-        .eq('user_id', user?.id)
-        .eq('is_resolved', false)
-        .not('id', 'in', (prayedIds || []).map((p) => p.prayer_point_id))
-        .limit(1);
-
-      if (error) throw error;
-
-      if (prayers && prayers.length > 0) {
-        setCurrentPrayer(prayers[0]);
-        // Record this prayer point in the session
-        await supabase.from('prayer_session_points').insert({
-          session_id: sessionId,
-          prayer_point_id: prayers[0].id,
-          prayed_at: new Date().toISOString(),
-        });
+      if (availablePrayers.length > 0) {
+        // Get a random prayer from available ones
+        const randomIndex = Math.floor(Math.random() * availablePrayers.length);
+        const selectedPrayer = availablePrayers[randomIndex];
+        
+        setCurrentPrayer(selectedPrayer);
+        setPrayedPrayerIds(prev => [...prev, selectedPrayer.id]);
       } else {
         toast.success('You have prayed through all your prayer points!');
         await endSession();
@@ -131,15 +130,27 @@ export function PrayerSession() {
           <h3 className="text-lg leading-6 font-medium text-gray-900">
             Current Prayer Point
           </h3>
+          
+          {/* Progress indicator */}
+          <div className="mt-2 text-sm text-gray-500">
+            {prayedPrayerIds.length} of {prayers.filter(p => p.status === PrayerPointStatus.ACTIVE).length} prayers completed
+          </div>
+          
           {currentPrayer && (
             <div className="mt-4">
               <p className="text-sm text-gray-500 capitalize mb-2">
-                Category: {currentPrayer.category_id}
+                Category: {currentPrayer.categoryName || 'Uncategorized'}
               </p>
               <p className="text-lg text-gray-900">{currentPrayer.content}</p>
             </div>
           )}
           <div className="mt-6 space-x-4">
+            <button
+              onClick={markAsPrayed}
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+            >
+              Mark as Prayed
+            </button>
             <button
               onClick={getNextPrayer}
               className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"

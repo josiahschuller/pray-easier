@@ -73,19 +73,6 @@ class SupabaseService {
     return data as PrayerCategory[];
   }
 
-  getPrayerPointsByCategoryId = async (categoryId: number): Promise<PrayerPoint[]> => {
-    const { data, error } = await this.supabase
-      .from('prayerPoints')
-      .select('*')
-      .eq('categoryId', categoryId)
-      .order('createdAt', { ascending: false });
-
-    if (error) {
-      throw new Error(`Error fetching prayer points: ${error.message}`);
-    }
-    return data as PrayerPoint[];
-  }
-
   createPrayerCategory = async (userId: number, name: string): Promise<PrayerCategory> => {
     const { data, error } = await this.supabase
       .from('prayerCategories')
@@ -120,6 +107,19 @@ class SupabaseService {
       throw new Error(`Error updating prayer category: ${error.message}`);
     }
     return data as PrayerCategory;
+  }
+
+  getPrayerPointsByCategoryId = async (categoryId: number): Promise<PrayerPoint[]> => {
+    const { data, error } = await this.supabase
+      .from('prayerPoints')
+      .select('*')
+      .eq('categoryId', categoryId)
+      .order('createdAt', { ascending: false });
+
+    if (error) {
+      throw new Error(`Error fetching prayer points: ${error.message}`);
+    }
+    return data as PrayerPoint[];
   }
 
   createPrayerPoint = async (categoryId: number, content: string): Promise<PrayerPoint> => {
