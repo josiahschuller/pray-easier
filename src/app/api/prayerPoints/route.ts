@@ -4,16 +4,20 @@ import { authoriseRequest } from '@/app/api/utils/authoriseRequest';
 import { PrayerPointStatus } from '@/types/database';
 
 export async function GET(request: Request) {
+  const userId = (new URL(request.url)).searchParams.get('userId');
   authoriseRequest(
     request.headers.get('authorization'),
-    (new URL(request.url)).searchParams.get('userId'),
+    userId,
   );
   try {    
     // Fetch prayer categories for the specified user ID
-    const prayerCategories = await supabaseService.getPrayerCategoriesByUserId(Number((new URL(request.url)).searchParams.get('userId')));
+    const prayerCategories = await supabaseService.getPrayerCategoriesByUserId(Number(userId));
     if (!prayerCategories || prayerCategories.length === 0) {
       return NextResponse.json(
-        { prayerPoints: [] },
+        { 
+          prayerCategories: [],
+          prayerPoints: [] 
+        },
         { status: 200 }
       );
     }
@@ -27,7 +31,10 @@ export async function GET(request: Request) {
     }).flat();
     const resolvedPrayerPoints = await Promise.all(prayerPointsPromises);
     return NextResponse.json(
-      { prayerPoints: resolvedPrayerPoints },
+      { 
+        prayerCategories: prayerCategories,
+        prayerPoints: resolvedPrayerPoints 
+      },
       { status: 200 }
     );
   } catch (error) {
@@ -40,9 +47,10 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  const userId = (new URL(request.url)).searchParams.get('userId');
   authoriseRequest(
     request.headers.get('authorization'),
-    (new URL(request.url)).searchParams.get('userId'),
+    userId,
   );
   try {
     // Get prayerCategories and prayerPoints from the request body
@@ -51,7 +59,7 @@ export async function POST(request: Request) {
     prayerCategories.map(async (category: { name: string }) => {
       // Create a new prayer category for the user
       const newCategory = await supabaseService.createPrayerCategory(
-        Number((new URL(request.url)).searchParams.get('userId')),
+        Number(userId),
         category.name
       );
       return newCategory;

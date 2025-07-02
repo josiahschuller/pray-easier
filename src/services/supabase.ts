@@ -76,7 +76,7 @@ class SupabaseService {
   createPrayerCategory = async (userId: number, name: string): Promise<PrayerCategory> => {
     const { data, error } = await this.supabase
       .from('prayerCategories')
-      .insert([{ user_id: userId, name: name }])
+      .insert([{ userId, name }])
       .single();
 
     if (error) {

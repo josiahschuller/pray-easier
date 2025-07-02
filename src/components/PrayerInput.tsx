@@ -2,45 +2,37 @@
 
 import { useState } from 'react';
 import { usePrayerPoints } from '@/hooks/usePrayerPoints';
+import { useAuth } from '@/contexts/AuthContext';
 import TextareaAutosize from 'react-textarea-autosize';
 import toast from 'react-hot-toast';
 
 export function PrayerInput() {
   const [text, setText] = useState('');
   const { addPrayer, loading } = usePrayerPoints();
-
-  // Simple prayer processing function (can be enhanced with AI later)
-  const processPrayerText = (text: string) => {
-    const lines = text.split('\n').filter(line => line.trim());
-    const processed: Array<{ category: string; content: string }> = [];
-    
-    let currentCategory = 'General';
-    
-    for (const line of lines) {
-      const trimmedLine = line.trim();
-      if (!trimmedLine) continue;
-      
-      // Check if line looks like a category header
-      if (trimmedLine.endsWith(':') || trimmedLine.match(/^[A-Z][a-z\s]+$/)) {
-        currentCategory = trimmedLine.replace(':', '').trim();
-      } else {
-        processed.push({
-          category: currentCategory,
-          content: trimmedLine
-        });
-      }
-    }
-    
-    return processed;
-  };
+  const { user } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!text.trim()) return;
+    if (!text.trim() || !user) return;
 
     try {
-      // Process the prayer text
-      const processedPrayers = processPrayerText(text);
+      // Process the prayer text using the API
+      const response = await fetch(`/api/processPrayer?userId=${user?.id}`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${user?.accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to process prayer text');
+      }
+
+      const data = await response.json();
+      const processedPrayers = data.prayers;
       
       // Add each prayer using the hook
       for (const prayer of processedPrayers) {
