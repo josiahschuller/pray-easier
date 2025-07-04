@@ -28,3 +28,8 @@ export type PrayerPoint = {
   status: PrayerPointStatus;
   lastTimePrayed?: Date;
 };
+
+export interface ProcessedPrayer {
+  content: string;
+  category: string;
+}

@@ -1,14 +1,18 @@
 'use client';
 
 import { useState } from 'react';
-import { usePrayerPoints } from '@/hooks/usePrayerPoints';
 import { useAuth } from '@/contexts/AuthContext';
+import { ProcessedPrayer } from '@/types/database';
 import TextareaAutosize from 'react-textarea-autosize';
 import toast from 'react-hot-toast';
 
-export function PrayerInput() {
+interface PrayerInputProps {
+  onPrayersProcessed: (prayers: ProcessedPrayer[]) => void;
+}
+
+export function PrayerInput({ onPrayersProcessed }: PrayerInputProps) {
   const [text, setText] = useState('');
-  const { addPrayer, loading } = usePrayerPoints();
+  const [loading, setLoading] = useState(false);
   const { user } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -16,6 +20,7 @@ export function PrayerInput() {
     if (!text.trim() || !user) return;
 
     try {
+      setLoading(true);
       // Process the prayer text using the API
       const response = await fetch(`/api/processPrayer?userId=${user?.id}`, {
         method: 'POST',
@@ -34,15 +39,13 @@ export function PrayerInput() {
       const data = await response.json();
       const processedPrayers = data.prayers;
       
-      // Add each prayer using the hook
-      for (const prayer of processedPrayers) {
-        await addPrayer(prayer.content, prayer.category);
-      }
-
-      toast.success('Prayer points added successfully!');
+      // Pass the processed prayers to the confirmation component
+      onPrayersProcessed(processedPrayers);
       setText('');
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'An error occurred');
+    } finally {
+      setLoading(false);
     }
   };
 
