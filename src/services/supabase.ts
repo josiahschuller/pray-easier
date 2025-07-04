@@ -126,7 +126,7 @@ class SupabaseService {
     const { data, error } = await this.supabase
       .from('prayerPoints')
       .insert([{ 
-        category_id: categoryId, 
+        categoryId, 
         content: content,
         status: PrayerPointStatus.ACTIVE
       }])
@@ -159,17 +159,17 @@ class SupabaseService {
   ): Promise<PrayerPoint | null> => {
     // Create an update object with only the provided fields
     const updateData: { 
-      category_id?: number;
+      categoryId?: number;
       content?: string; 
       status?: PrayerPointStatus; 
-      last_time_prayed?: string;
+      lastTimePrayed?: string;
     } = {};
     
     // Only add properties to the update object if they are provided
-    if (categoryId !== undefined) updateData.category_id = categoryId;
+    if (categoryId !== undefined) updateData.categoryId = categoryId;
     if (content !== undefined) updateData.content = content;
     if (status !== undefined) updateData.status = status;
-    if (lastTimePrayed !== undefined) updateData.last_time_prayed = lastTimePrayed;
+    if (lastTimePrayed !== undefined) updateData.lastTimePrayed = lastTimePrayed;
     
     // Only proceed with the update if there are fields to update
     if (Object.keys(updateData).length === 0) {
