@@ -6,7 +6,7 @@ import { usePrayerPoints } from '@/hooks/usePrayerPoints';
 import toast from 'react-hot-toast';
 import type { PrayerPoint } from '@/types/database';
 import { PrayerPointStatus } from '@/types/database';
-import { ARCHIVED_TEXT } from '@/utilities/constants';
+import { ARCHIVED_TEXT } from '@/utils/constants';
 
 interface PrayerPointWithCategory extends PrayerPoint {
   categoryName?: string;

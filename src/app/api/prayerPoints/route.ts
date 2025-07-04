@@ -1,6 +1,6 @@
 import { supabaseService } from '@/services/supabase';
 import { NextResponse } from 'next/server';
-import { authoriseRequest } from '@/app/api/utils/authoriseRequest';
+import { authoriseRequest } from '@/utils/authoriseRequest';
 import { PrayerPointStatus } from '@/types/database';
 
 export async function GET(request: Request) {

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { openAIService } from '@/services/openai';
-import { authoriseRequest } from '@/app/api/utils/authoriseRequest';
+import { authoriseRequest } from '@/utils/authoriseRequest';
 
 export async function POST(request: Request) {
   const userId = (new URL(request.url)).searchParams.get('userId');

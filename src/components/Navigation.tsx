@@ -34,10 +34,10 @@ export function NavItem({ label, isActive, onClick, disabled = false, variant = 
 interface NavigationProps {
   activeView: 'input' | 'list' | 'session';
   onViewChange: (view: 'input' | 'list' | 'session') => void;
-  showConfirmation: boolean;
+  newPrayerPointsBeingModified: boolean;
 }
 
-export function Navigation({ activeView, onViewChange, showConfirmation }: NavigationProps) {
+export function Navigation({ activeView, onViewChange, newPrayerPointsBeingModified }: NavigationProps) {
   const { logout } = useAuth();
 
   const handleLogout = () => {
@@ -59,21 +59,21 @@ export function Navigation({ activeView, onViewChange, showConfirmation }: Navig
               label="New Prayers"
               isActive={activeView === 'input'}
               onClick={() => onViewChange('input')}
-              disabled={showConfirmation}
+              disabled={newPrayerPointsBeingModified}
             />
             <NavItem
               label="Prayer List"
               isActive={activeView === 'list'}
               onClick={() => onViewChange('list')}
-              disabled={showConfirmation}
+              disabled={newPrayerPointsBeingModified}
             />
             <NavItem
               label="Prayer Session"
               isActive={activeView === 'session'}
               onClick={() => onViewChange('session')}
-              disabled={showConfirmation}
+              disabled={newPrayerPointsBeingModified}
             />
-            {showConfirmation && (
+            {newPrayerPointsBeingModified && (
               <span className="text-sm text-gray-600 ml-4">
                 Reviewing prayer points...
               </span>

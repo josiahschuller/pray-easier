@@ -2,7 +2,7 @@
 
 import { usePrayerPoints } from '@/hooks/usePrayerPoints';
 import { PrayerPointStatus } from '@/types/database';
-import { ARCHIVED_TEXT } from '@/utilities/constants';
+import { ARCHIVED_TEXT } from '@/utils/constants';
 
 export function PrayerList() {
   const { prayers, updatePrayer, loading } = usePrayerPoints();

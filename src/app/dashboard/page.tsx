@@ -13,21 +13,21 @@ export default function DashboardPage() {
   const { user, loading } = useAuth();
   const [activeView, setActiveView] = useState<'input' | 'list' | 'session'>('list');
   const [pendingPrayers, setPendingPrayers] = useState<ProcessedPrayer[]>([]);
-  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [newPrayerPointsBeingModified, setNewPrayerPointsBeingModified] = useState(false);
 
   const handlePrayersProcessed = (prayers: ProcessedPrayer[]) => {
     setPendingPrayers(prayers);
-    setShowConfirmation(true);
+    setNewPrayerPointsBeingModified(true);
   };
 
   const handleConfirmPrayers = () => {
-    setShowConfirmation(false);
+    setNewPrayerPointsBeingModified(false);
     setPendingPrayers([]);
     setActiveView('list'); // Switch to prayer list view after confirmation
   };
 
   const handleCancelConfirmation = () => {
-    setShowConfirmation(false);
+    setNewPrayerPointsBeingModified(false);
     setPendingPrayers([]);
   };
 
@@ -61,11 +61,11 @@ export default function DashboardPage() {
       <Navigation 
         activeView={activeView}
         onViewChange={setActiveView}
-        showConfirmation={showConfirmation}
+        newPrayerPointsBeingModified={newPrayerPointsBeingModified}
       />
 
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        {showConfirmation ? (
+        {newPrayerPointsBeingModified ? (
           <PrayerInputConfirm 
             prayers={pendingPrayers}
             onConfirm={handleConfirmPrayers}
