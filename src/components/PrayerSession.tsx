@@ -16,10 +16,26 @@ export function PrayerSession() {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [currentPrayer, setCurrentPrayer] = useState<PrayerPointWithCategory | null>(null);
   const [prayedPrayerIds, setPrayedPrayerIds] = useState<number[]>([]);
+  const [sessionStartTime, setSessionStartTime] = useState<Date | null>(null);
+  const [showSessionSummary, setShowSessionSummary] = useState(false);
+  const [sessionSummary, setSessionSummary] = useState<{
+    prayerCount: number;
+    duration: string;
+  } | null>(null);
   const { user } = useAuth();
   const { prayers, loading, updatePrayer } = usePrayerPoints();
 
-
+  const formatDuration = (startTime: Date, endTime: Date): string => {
+    const durationMs = endTime.getTime() - startTime.getTime();
+    const minutes = Math.floor(durationMs / 60000);
+    const seconds = Math.floor((durationMs % 60000) / 1000);
+    
+    if (minutes > 0) {
+      return `${minutes} minute${minutes !== 1 ? 's' : ''} ${seconds} second${seconds !== 1 ? 's' : ''}`;
+    } else {
+      return `${seconds} second${seconds !== 1 ? 's' : ''}`;
+    }
+  };
 
   const startSession = async () => {
     try {
@@ -31,10 +47,14 @@ export function PrayerSession() {
         return;
       }
 
-      // Generate a simple session ID (in production, you might want to use a proper session management)
+      // Generate a simple session ID and record start time
       const newSessionId = `session_${Date.now()}`;
+      const startTime = new Date();
       setSessionId(newSessionId);
+      setSessionStartTime(startTime);
       setPrayedPrayerIds([]);
+      setShowSessionSummary(false);
+      setSessionSummary(null);
       
       // Select the first prayer directly
       const randomIndex = Math.floor(Math.random() * activePrayers.length);
@@ -50,7 +70,7 @@ export function PrayerSession() {
   };
 
   const endSession = async () => {
-    if (!sessionId) return;
+    if (!sessionId || !sessionStartTime) return;
 
     try {
       // Mark the current prayer as prayed before ending the session
@@ -60,12 +80,30 @@ export function PrayerSession() {
         });
       }
 
+      // Calculate session summary
+      const endTime = new Date();
+      const duration = formatDuration(sessionStartTime, endTime);
+      const prayerCount = prayedPrayerIds.length;
+
+      setSessionSummary({
+        prayerCount,
+        duration
+      });
+      setShowSessionSummary(true);
+
+      // Clear session state
       setSessionId(null);
       setCurrentPrayer(null);
       setPrayedPrayerIds([]);
+      setSessionStartTime(null);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Failed to end session');
     }
+  };
+
+  const closeSummary = () => {
+    setShowSessionSummary(false);
+    setSessionSummary(null);
   };
 
   const getNextPrayer = async () => {
@@ -140,6 +178,36 @@ export function PrayerSession() {
     return (
       <div className="text-center py-12">
         <p className="text-gray-500">Loading...</p>
+      </div>
+    );
+  }
+
+  if (showSessionSummary && sessionSummary) {
+    return (
+      <div className="bg-white shadow sm:rounded-lg">
+        <div className="px-4 py-5 sm:p-6 text-center">
+          <h3 className="text-lg leading-6 font-medium text-gray-900 mb-2">
+            Prayer Session Complete
+          </h3>
+          <div className="mt-4 space-y-3">
+            <div className="bg-gray-50 rounded-lg p-4">
+              <div className="text-sm text-gray-500">
+                You prayed for {sessionSummary.prayerCount} prayer point{sessionSummary.prayerCount !== 1 ? 's' : ''}!
+              </div>
+            </div>
+            <div className="bg-gray-50 rounded-lg p-4">
+              <div className="text-sm text-gray-500">
+                Total session time: {sessionSummary.duration}
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={closeSummary}
+            className="mt-6 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            Close
+          </button>
+        </div>
       </div>
     );
   }
