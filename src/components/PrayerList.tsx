@@ -2,6 +2,7 @@
 
 import { usePrayerPoints } from '@/hooks/usePrayerPoints';
 import { PrayerPointStatus } from '@/types/database';
+import { ARCHIVED_TEXT } from '@/utilities/constants';
 
 export function PrayerList() {
   const { prayers, updatePrayer, loading } = usePrayerPoints();
@@ -49,7 +50,7 @@ export function PrayerList() {
                       onClick={() => handleResolve(prayer.id)}
                       className="ml-4 text-sm text-indigo-600 hover:text-indigo-500"
                     >
-                      Mark Resolved
+                      {ARCHIVED_TEXT}
                     </button>
                   )}
                 </div>

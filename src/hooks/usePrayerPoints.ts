@@ -312,8 +312,6 @@ export function usePrayerPoints(): UsePrayerPointsReturn {
 
       // Refresh to get updated data
       await loadPrayers();
-      
-      toast.success('Prayer added successfully!');
     } catch (error) {
       console.error('Error adding prayer:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to add prayer');

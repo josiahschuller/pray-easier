@@ -6,6 +6,7 @@ import { usePrayerPoints } from '@/hooks/usePrayerPoints';
 import toast from 'react-hot-toast';
 import type { PrayerPoint } from '@/types/database';
 import { PrayerPointStatus } from '@/types/database';
+import { ARCHIVED_TEXT } from '@/utilities/constants';
 
 interface PrayerPointWithCategory extends PrayerPoint {
   categoryName?: string;
@@ -18,18 +19,7 @@ export function PrayerSession() {
   const { user } = useAuth();
   const { prayers, loading, updatePrayer } = usePrayerPoints();
 
-  const markAsPrayed = async () => {
-    if (!currentPrayer) return;
-    
-    try {
-      await updatePrayer(currentPrayer.id, {
-        lastTimePrayed: new Date()
-      });
-      toast.success('Prayer marked as prayed!');
-    } catch (error) {
-      toast.error('Failed to update prayer');
-    }
-  };
+
 
   const startSession = async () => {
     try {
@@ -45,7 +35,14 @@ export function PrayerSession() {
       const newSessionId = `session_${Date.now()}`;
       setSessionId(newSessionId);
       setPrayedPrayerIds([]);
-      await getNextPrayer();
+      
+      // Select the first prayer directly
+      const randomIndex = Math.floor(Math.random() * activePrayers.length);
+      const selectedPrayer = activePrayers[randomIndex];
+      
+      setCurrentPrayer(selectedPrayer);
+      setPrayedPrayerIds([selectedPrayer.id]);
+      
       toast.success('Prayer session started!');
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Failed to start session');
@@ -56,10 +53,16 @@ export function PrayerSession() {
     if (!sessionId) return;
 
     try {
+      // Mark the current prayer as prayed before ending the session
+      if (currentPrayer) {
+        await updatePrayer(currentPrayer.id, {
+          lastTimePrayed: new Date()
+        });
+      }
+
       setSessionId(null);
       setCurrentPrayer(null);
       setPrayedPrayerIds([]);
-      toast.success('Prayer session ended');
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Failed to end session');
     }
@@ -69,6 +72,13 @@ export function PrayerSession() {
     if (!sessionId) return;
 
     try {
+      // Mark the current prayer as prayed before moving to the next one
+      if (currentPrayer) {
+        await updatePrayer(currentPrayer.id, {
+          lastTimePrayed: new Date()
+        });
+      }
+
       // Get active prayers that haven't been prayed in this session
       const availablePrayers = prayers.filter(prayer => 
         prayer.status === PrayerPointStatus.ACTIVE && 
@@ -88,6 +98,41 @@ export function PrayerSession() {
       }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Failed to get next prayer');
+    }
+  };
+
+  const archivePrayer = async () => {
+    if (!sessionId || !currentPrayer) return;
+
+    try {
+      // Mark the prayer as archived and prayed
+      await updatePrayer(currentPrayer.id, {
+        status: PrayerPointStatus.ARCHIVED,
+        lastTimePrayed: new Date()
+      });
+
+      toast.success('Prayer archived');
+
+      // Get active prayers that haven't been prayed in this session (excluding the one we just archived)
+      const availablePrayers = prayers.filter(prayer => 
+        prayer.status === PrayerPointStatus.ACTIVE && 
+        !prayedPrayerIds.includes(prayer.id) &&
+        prayer.id !== currentPrayer.id
+      );
+
+      if (availablePrayers.length > 0) {
+        // Get a random prayer from available ones
+        const randomIndex = Math.floor(Math.random() * availablePrayers.length);
+        const selectedPrayer = availablePrayers[randomIndex];
+        
+        setCurrentPrayer(selectedPrayer);
+        setPrayedPrayerIds(prev => [...prev, selectedPrayer.id]);
+      } else {
+        toast.success('You have prayed through all your prayer points!');
+        await endSession();
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to archive prayer');
     }
   };
 
@@ -133,7 +178,7 @@ export function PrayerSession() {
           
           {/* Progress indicator */}
           <div className="mt-2 text-sm text-gray-500">
-            {prayedPrayerIds.length} of {prayers.filter(p => p.status === PrayerPointStatus.ACTIVE).length} prayers completed
+            Prayed {prayedPrayerIds.length - 1} prayer point{prayedPrayerIds.length - 1 !== 1 ? 's' : ''}
           </div>
           
           {currentPrayer && (
@@ -146,16 +191,16 @@ export function PrayerSession() {
           )}
           <div className="mt-6 space-x-4">
             <button
-              onClick={markAsPrayed}
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-            >
-              Mark as Prayed
-            </button>
-            <button
               onClick={getNextPrayer}
               className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
               Next Prayer
+            </button>
+            <button
+              onClick={archivePrayer}
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+            >
+              {ARCHIVED_TEXT}
             </button>
             <button
               onClick={endSession}
@@ -168,4 +213,4 @@ export function PrayerSession() {
       </div>
     </div>
   );
-} 
+}
