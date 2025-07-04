@@ -45,7 +45,6 @@ export async function POST(request: Request) {
     }
 
     // Password is valid, return the user
-    console.log('Login successful for:', emailAddress);
     return NextResponse.json(
       {
         message: 'Login successful',

@@ -58,12 +58,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setLoading(true);
     setError(null);
     
-    try {
-      console.log('Attempting login for:', emailAddress);
-      
-      // Use lowercase API path 
+    try {      
       const apiPath = '/api/logIn';
-      console.log('Using API path:', apiPath);
       
       const response = await fetch(apiPath, {
         method: 'POST',
@@ -72,11 +68,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           'Accept': 'application/json'
         },
         body: JSON.stringify({ emailAddress, password }),
-      });
-      
-      console.log('Login response status:', response.status);
-      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
-      
+      });      
       const responseText = await response.text();
       
       // Try to parse JSON from the text response
@@ -123,11 +115,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setError(null);
     
     try {
-      console.log('Attempting signup for:', emailAddress);
-      
-      // Use lowercase API path
       const apiPath = '/api/signUp';
-      console.log('Using API path:', apiPath);
       
       const response = await fetch(apiPath, {
         method: 'POST',
@@ -137,9 +125,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         },
         body: JSON.stringify({ emailAddress, password, name }),
       });
-      
-      console.log('Signup response status:', response.status);
-      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
       
       const responseText = await response.text();
       
