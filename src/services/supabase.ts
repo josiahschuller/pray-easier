@@ -52,6 +52,7 @@ class SupabaseService {
     const { data, error } = await this.supabase
       .from('users')
       .insert([{ emailAddress, passwordHash: hashedPassword, salt, name, accessToken }])
+      .select()
       .single();
 
     if (error) {
@@ -77,6 +78,7 @@ class SupabaseService {
     const { data, error } = await this.supabase
       .from('prayerCategories')
       .insert([{ userId, name }])
+      .select()
       .single();
 
     if (error) {
@@ -130,6 +132,7 @@ class SupabaseService {
         content: content,
         status: PrayerPointStatus.ACTIVE
       }])
+      .select()
       .single();
 
     if (error) {

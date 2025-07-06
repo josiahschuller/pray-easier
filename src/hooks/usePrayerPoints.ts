@@ -266,26 +266,12 @@ export function usePrayerPoints(): UsePrayerPointsReturn {
             prayerPoints: [],
           }),
         });
-
+        const categoryData = await categoryResponse.json();
         if (!categoryResponse.ok) {
-          const errorData = await categoryResponse.json();
-          throw new Error(errorData.error || 'Failed to create category');
+          throw new Error(categoryData.error || 'Failed to create category');
         }
         
-        // Get the updated categories from the latest state
-        // We need to fetch fresh data to get the new category ID
-        const freshResponse = await fetch(`/api/prayerPoints?userId=${user.id}`, {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${user.accessToken}`,
-            'Content-Type': 'application/json',
-          },
-        });
-        if (!freshResponse.ok) {
-          throw new Error('Failed to fetch updated categories');
-        }
-        const freshData = await freshResponse.json();
-        const freshCategories: PrayerCategory[] = freshData.prayerCategories || [];
+        const freshCategories: PrayerCategory[] = categoryData.createdCategories || [];
         const newCategory = freshCategories.find(cat => cat.name === categoryName);
         if (!newCategory) {
           throw new Error('Failed to retrieve newly created category');

@@ -1,7 +1,7 @@
 import { supabaseService } from '@/services/supabase';
 import { NextResponse } from 'next/server';
 import { authoriseRequest } from '@/utils/authoriseRequest';
-import { PrayerPointStatus } from '@/types/database';
+import { PrayerCategory, PrayerPoint, PrayerPointStatus } from '@/types/database';
 
 export async function GET(request: Request) {
   const userId = (new URL(request.url)).searchParams.get('userId');
@@ -56,26 +56,40 @@ export async function POST(request: Request) {
     // Get prayerCategories and prayerPoints from the request body
     const { prayerCategories, prayerPoints } = await request.json();
 
-    prayerCategories.map(async (category: { name: string }) => {
-      // Create a new prayer category for the user
-      const newCategory = await supabaseService.createPrayerCategory(
-        Number(userId),
-        category.name
-      );
-      return newCategory;
-    });
+    // Create prayer categories and collect the results
+    const createdCategories: PrayerCategory[] = [];
+    if (prayerCategories && prayerCategories.length > 0) {
+      const categoryPromises = prayerCategories.map(async (category: { name: string }) => {
+        // Create a new prayer category for the user
+        const newCategory = await supabaseService.createPrayerCategory(
+          Number(userId),
+          category.name
+        );
+        return newCategory;
+      });
+      createdCategories.push(...await Promise.all(categoryPromises));
+    }
 
-    prayerPoints.map(async (point: { categoryId: number, content: string }) => {
-      // Create a new prayer point for the specified category
-      const newPoint = await supabaseService.createPrayerPoint(
-        point.categoryId,
-        point.content
-      );
-      return newPoint;
-    });
+    // Create prayer points and collect the results
+    const createdPrayerPoints: PrayerPoint[] = [];
+    if (prayerPoints && prayerPoints.length > 0) {
+      const pointPromises = prayerPoints.map(async (point: { categoryId: number, content: string }) => {
+        // Create a new prayer point for the specified category
+        const newPoint = await supabaseService.createPrayerPoint(
+          point.categoryId,
+          point.content
+        );
+        return newPoint;
+      });
+      createdPrayerPoints.push(...await Promise.all(pointPromises));
+    }
 
     return NextResponse.json(
-      { message: 'Prayer points created successfully' },
+      { 
+        message: 'Prayer points created successfully',
+        createdCategories,
+        createdPrayerPoints
+      },
       { status: 201 }
     );
   } catch (error) {
