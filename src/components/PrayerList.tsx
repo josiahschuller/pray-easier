@@ -48,7 +48,7 @@ export function PrayerList() {
                   {prayer.status !== PrayerPointStatus.ARCHIVED && (
                     <button
                       onClick={() => handleResolve(prayer.id)}
-                      className="ml-4 text-sm text-indigo-600 hover:text-indigo-500"
+                      className="ml-4 w-35 flex-shrink-0 px-3 py-1 text-sm font-medium text-white rounded-md border border-transparent focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors duration-200 bg-primary hover:bg-primary-hover"
                     >
                       {ARCHIVED_TEXT}
                     </button>

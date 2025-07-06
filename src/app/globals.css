@@ -1,22 +1,115 @@
 @import "tailwindcss";
 
 :root {
-  --color-background: #aaaaaa;
+  --color-background: #f9fafb;
   --color-foreground: #171717;
   --font-sans: system-ui, sans-serif;
+  
+  /* Primary color palette */
+  --color-primary: #6366f1;
+  --color-primary-hover: #5b21b6;
+  --color-primary-light: #e0e7ff;
+  --color-primary-dark: #4338ca;
+  
+  /* Secondary color palette */
+  --color-secondary: #64748b;
+  --color-secondary-hover: #475569;
+  --color-secondary-light: #f1f5f9;
+  --color-secondary-dark: #334155;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-background: #0a0a0a;
-    --color-foreground: #ededed;
-  }
+.dark {
+  --color-background: #111827;
+  --color-foreground: #f9fafb;
+  
+  /* Adjust primary colors for dark mode */
+  --color-primary: #818cf8;
+  --color-primary-hover: #6366f1;
+  --color-primary-light: #312e81;
+  --color-primary-dark: #a5b4fc;
+  
+  /* Adjust secondary colors for dark mode */
+  --color-secondary: #94a3b8;
+  --color-secondary-hover: #cbd5e1;
+  --color-secondary-light: #1e293b;
+  --color-secondary-dark: #f8fafc;
 }
 
 body {
   background: var(--color-background);
   color: var(--color-foreground);
   font-family: var(--font-sans);
+  min-height: 100vh;
+  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+html {
+  background: var(--color-background);
+}
+
+/* Custom utility classes using CSS variables */
+.bg-primary {
+  background-color: var(--color-primary);
+}
+
+.bg-primary-hover:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.bg-primary-light {
+  background-color: var(--color-primary-light);
+}
+
+.bg-primary-dark {
+  background-color: var(--color-primary-dark);
+}
+
+.bg-secondary {
+  background-color: var(--color-secondary);
+}
+
+.bg-secondary-hover:hover {
+  background-color: var(--color-secondary-hover);
+}
+
+.bg-secondary-light {
+  background-color: var(--color-secondary-light);
+}
+
+.bg-secondary-dark {
+  background-color: var(--color-secondary-dark);
+}
+
+.text-primary {
+  color: var(--color-primary);
+}
+
+.text-primary-hover:hover {
+  color: var(--color-primary-hover);
+}
+
+.text-secondary {
+  color: var(--color-secondary);
+}
+
+.text-secondary-hover:hover {
+  color: var(--color-secondary-hover);
+}
+
+.border-primary {
+  border-color: var(--color-primary);
+}
+
+.border-secondary {
+  border-color: var(--color-secondary);
+}
+
+.focus\:ring-primary:focus {
+  --tw-ring-color: var(--color-primary);
+}
+
+.focus\:ring-secondary:focus {
+  --tw-ring-color: var(--color-secondary);
 }
 
 /* Add spinner animation if it's not already included by Tailwind */
@@ -33,4 +126,53 @@ body {
   border-color: #e5e7eb;
   border-top-color: #6366f1;
   animation: spin 1s linear infinite;
+}
+
+/* Dark mode improvements for components */
+.dark .bg-white {
+  background-color: #1f2937; /* gray-800 */
+}
+
+.dark .text-gray-900 {
+  color: #f9fafb; /* gray-50 */
+}
+
+.dark .text-gray-700 {
+  color: #d1d5db; /* gray-300 */
+}
+
+.dark .text-gray-500 {
+  color: #9ca3af; /* gray-400 */
+}
+
+.dark .border-gray-200 {
+  border-color: #374151; /* gray-700 */
+}
+
+.dark .border-gray-300 {
+  border-color: #4b5563; /* gray-600 */
+}
+
+.dark .shadow,
+.dark .shadow-sm {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* Spinner dark mode */
+.dark .spinner {
+  border-color: #374151;
+  border-top-color: var(--color-primary);
+}
+
+/* Ensure Tailwind dark mode classes work properly */
+.dark .bg-gray-50 {
+  background-color: #374151; /* gray-700 */
+}
+
+.dark .text-gray-500 {
+  color: #9ca3af; /* gray-400 */
+}
+
+.dark .text-gray-600 {
+  color: #d1d5db !important; /* gray-300 */
 }

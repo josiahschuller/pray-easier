@@ -34,21 +34,21 @@ export default function DashboardPage() {
   // Show loading state while authentication is being determined
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="spinner animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900 mx-auto"></div>
-          <p className="mt-4 text-gray-700">Loading...</p>
+          <div className="spinner animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 mx-auto"></div>
+          <p className="mt-4">Loading...</p>
         </div>
       </div>
     );
   } else if (!user) {    
     // Redirect to auth page
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900">Access Denied</h2>
-          <p className="mt-2 text-gray-700">You must be logged in to access this page.</p>
-          <a href="/auth" className="mt-4 inline-block px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+          <h2 className="text-2xl font-bold">Access Denied</h2>
+          <p className="mt-2">You must be logged in to access this page.</p>
+          <a href="/auth" className="mt-4 inline-block px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-hover transition-colors">
             Go to Login
           </a>
         </div>
@@ -57,7 +57,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen">
       <Navigation 
         activeView={activeView}
         onViewChange={setActiveView}

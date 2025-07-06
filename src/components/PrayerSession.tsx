@@ -177,33 +177,33 @@ export function PrayerSession() {
   if (loading) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-500">Loading...</p>
+        <p>Loading...</p>
       </div>
     );
   }
 
   if (showSessionSummary && sessionSummary) {
     return (
-      <div className="bg-white shadow sm:rounded-lg">
+      <div className="bg-white dark:bg-gray-800 shadow sm:rounded-lg">
         <div className="px-4 py-5 sm:p-6 text-center">
-          <h3 className="text-lg leading-6 font-medium text-gray-900 mb-2">
+          <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-gray-100 mb-2">
             Prayer Session Complete
           </h3>
           <div className="mt-4 space-y-3">
-            <div className="bg-gray-50 rounded-lg p-4">
-              <div className="text-sm text-gray-500">
+            <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 transition-colors">
+              <div className="text-sm text-gray-500 dark:text-gray-400">
                 You prayed for {sessionSummary.prayerCount} prayer point{sessionSummary.prayerCount !== 1 ? 's' : ''}!
               </div>
             </div>
-            <div className="bg-gray-50 rounded-lg p-4">
-              <div className="text-sm text-gray-500">
+            <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 transition-colors">
+              <div className="text-sm text-gray-500 dark:text-gray-400">
                 Total session time: {sessionSummary.duration}
               </div>
             </div>
           </div>
           <button
             onClick={closeSummary}
-            className="mt-6 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            className="mt-6 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
           >
             Close
           </button>
@@ -214,12 +214,12 @@ export function PrayerSession() {
 
   if (!sessionId) {
     return (
-      <div className="bg-white shadow sm:rounded-lg">
+      <div className="bg-white dark:bg-gray-800 shadow sm:rounded-lg">
         <div className="px-4 py-5 sm:p-6 text-center">
-          <h3 className="text-lg leading-6 font-medium text-gray-900">
+          <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-gray-100">
             Start a Prayer Session
           </h3>
-          <div className="mt-2 max-w-xl text-sm text-gray-500 mx-auto">
+          <div className="mt-2 max-w-xl text-sm text-gray-500 dark:text-gray-400 mx-auto">
             <p>
               Begin a guided prayer session. You will be shown one prayer point at a time
               from your list.
@@ -227,7 +227,7 @@ export function PrayerSession() {
           </div>
           <button
             onClick={startSession}
-            className="mt-5 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            className="mt-5 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
           >
             Start Session
           </button>
@@ -237,42 +237,42 @@ export function PrayerSession() {
   }
 
   return (
-    <div className="bg-white shadow sm:rounded-lg">
+    <div className="bg-white dark:bg-gray-800 shadow sm:rounded-lg">
       <div className="px-4 py-5 sm:p-6">
         <div className="text-center">
-          <h3 className="text-lg leading-6 font-medium text-gray-900">
+          <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-gray-100">
             Current Prayer Point
           </h3>
           
           {/* Progress indicator */}
-          <div className="mt-2 text-sm text-gray-500">
+          <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
             Prayed {prayedPrayerIds.length - 1} prayer point{prayedPrayerIds.length - 1 !== 1 ? 's' : ''}
           </div>
           
           {currentPrayer && (
             <div className="mt-4">
-              <p className="text-sm text-gray-500 capitalize mb-2">
+              <p className="text-sm text-gray-500 dark:text-gray-400 capitalize mb-2">
                 Category: {currentPrayer.categoryName || 'Uncategorized'}
               </p>
-              <p className="text-lg text-gray-900">{currentPrayer.content}</p>
+              <p className="text-lg text-gray-900 dark:text-gray-100">{currentPrayer.content}</p>
             </div>
           )}
           <div className="mt-6 space-x-4">
             <button
               onClick={getNextPrayer}
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
             >
               Next Prayer
             </button>
             <button
               onClick={archivePrayer}
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-secondary hover:bg-secondary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-secondary"
             >
               {ARCHIVED_TEXT}
             </button>
             <button
               onClick={endSession}
-              className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md shadow-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors"
             >
               End Session
             </button>

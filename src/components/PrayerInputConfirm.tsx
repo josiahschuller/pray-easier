@@ -85,7 +85,7 @@ export function PrayerInputConfirm({ prayers, onConfirm, onCancel }: PrayerInput
                     value={prayer.content}
                     onChange={(e) => handlePrayerChange(index, 'content', e.target.value)}
                     rows={3}
-                    className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border border-gray-300 rounded-md p-2"
+                    className="shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm border border-gray-300 rounded-md p-2"
                     placeholder="Enter prayer content..."
                   />
                 </div>
@@ -98,7 +98,7 @@ export function PrayerInputConfirm({ prayers, onConfirm, onCancel }: PrayerInput
                     type="text"
                     value={prayer.category}
                     onChange={(e) => handlePrayerChange(index, 'category', e.target.value)}
-                    className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border border-gray-300 rounded-md p-2"
+                    className="shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm border border-gray-300 rounded-md p-2"
                     placeholder="Enter category..."
                   />
                 </div>
@@ -117,7 +117,7 @@ export function PrayerInputConfirm({ prayers, onConfirm, onCancel }: PrayerInput
           <button
             type="button"
             onClick={onCancel}
-            className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
           >
             Cancel
           </button>
@@ -126,7 +126,7 @@ export function PrayerInputConfirm({ prayers, onConfirm, onCancel }: PrayerInput
             type="button"
             onClick={handleSubmit}
             disabled={loading || editablePrayers.length === 0}
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50"
           >
             {loading ? 'Submitting...' : `Add ${editablePrayers.length} Prayer Point${editablePrayers.length !== 1 ? 's' : ''} to List`}
           </button>
