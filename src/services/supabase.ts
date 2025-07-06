@@ -51,7 +51,7 @@ class SupabaseService {
   createUser = async (emailAddress: string, hashedPassword: string, salt: string, name: string, accessToken: string): Promise<User> => {
     const { data, error } = await this.supabase
       .from('users')
-      .insert([{ email_address: emailAddress, password_hash: hashedPassword, salt: salt, name: name, access_token: accessToken }])
+      .insert([{ emailAddress, passwordHash: hashedPassword, salt, name, accessToken }])
       .single();
 
     if (error) {

@@ -30,7 +30,7 @@ export async function authoriseRequest(authHeader: string | null, userId: string
   }
 
   // Verify the access token is valid
-  if (accessToken !== dbUser.access_token) {
+  if (accessToken !== dbUser.accessToken) {
     return NextResponse.json(
       { error: 'Invalid or expired access token' },
       { status: 401 }
