@@ -1,35 +1,11 @@
 'use client';
 
-import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { ProcessedPrayer } from '@/types/database';
-import { PrayerInput } from '@/components/PrayerInput';
-import { PrayerInputConfirm } from '@/components/PrayerInputConfirm';
 import { PrayerList } from '@/components/PrayerList';
-import { PrayerSession } from '@/components/PrayerSession';
 import { Navigation } from '@/components/Navigation';
 
 export default function DashboardPage() {
   const { user, loading } = useAuth();
-  const [activeView, setActiveView] = useState<'input' | 'list' | 'session'>('list');
-  const [pendingPrayers, setPendingPrayers] = useState<ProcessedPrayer[]>([]);
-  const [newPrayerPointsBeingModified, setNewPrayerPointsBeingModified] = useState(false);
-
-  const handlePrayersProcessed = (prayers: ProcessedPrayer[]) => {
-    setPendingPrayers(prayers);
-    setNewPrayerPointsBeingModified(true);
-  };
-
-  const handleConfirmPrayers = () => {
-    setNewPrayerPointsBeingModified(false);
-    setPendingPrayers([]);
-    setActiveView('list'); // Switch to prayer list view after confirmation
-  };
-
-  const handleCancelConfirmation = () => {
-    setNewPrayerPointsBeingModified(false);
-    setPendingPrayers([]);
-  };
 
   // Show loading state while authentication is being determined
   if (loading) {
@@ -58,28 +34,10 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen">
-      <Navigation 
-        activeView={activeView}
-        onViewChange={setActiveView}
-        newPrayerPointsBeingModified={newPrayerPointsBeingModified}
-      />
+      <Navigation />
 
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        {newPrayerPointsBeingModified ? (
-          <PrayerInputConfirm 
-            prayers={pendingPrayers}
-            onConfirm={handleConfirmPrayers}
-            onCancel={handleCancelConfirmation}
-          />
-        ) : (
-          <>
-            {activeView === 'input' && (
-              <PrayerInput onPrayersProcessed={handlePrayersProcessed} />
-            )}
-            {activeView === 'list' && <PrayerList />}
-            {activeView === 'session' && <PrayerSession />}
-          </>
-        )}
+        <PrayerList />
       </main>
     </div>
   );

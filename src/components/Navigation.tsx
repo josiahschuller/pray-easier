@@ -3,6 +3,7 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { ThemeToggle } from './ThemeToggle';
 import { APP_NAME } from '@/utils/constants';
+import { useRouter, usePathname } from 'next/navigation';
 
 interface NavItemProps {
   label: string;
@@ -34,17 +35,36 @@ export function NavItem({ label, isActive, onClick, disabled = false, variant = 
 }
 
 interface NavigationProps {
-  activeView: 'input' | 'list' | 'session';
-  onViewChange: (view: 'input' | 'list' | 'session') => void;
-  newPrayerPointsBeingModified: boolean;
+  newPrayerPointsBeingModified?: boolean;
 }
 
-export function Navigation({ activeView, onViewChange, newPrayerPointsBeingModified }: NavigationProps) {
+export function Navigation({ newPrayerPointsBeingModified = false }: NavigationProps) {
   const { logout } = useAuth();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  // Determine active view based on current pathname
+  const getActiveView = () => {
+    if (pathname === '/session') return 'session';
+    if (pathname === '/new') return 'input';
+    return 'list'; // Default to list view for dashboard
+  };
+
+  const currentActiveView = getActiveView();
 
   const handleLogout = () => {
     logout();
     window.location.href = '/auth';
+  };
+
+  const handleNavigation = (view: 'input' | 'list' | 'session') => {
+    if (view === 'session') {
+      router.push('/session');
+    } else if (view === 'input') {
+      router.push('/new');
+    } else if (view === 'list') {
+      router.push('/dashboard');
+    }
   };
 
   return (
@@ -59,20 +79,20 @@ export function Navigation({ activeView, onViewChange, newPrayerPointsBeingModif
           <div className="flex items-center space-x-4">
             <NavItem
               label="New Prayers"
-              isActive={activeView === 'input'}
-              onClick={() => onViewChange('input')}
+              isActive={currentActiveView === 'input'}
+              onClick={() => handleNavigation('input')}
               disabled={newPrayerPointsBeingModified}
             />
             <NavItem
               label="Prayer List"
-              isActive={activeView === 'list'}
-              onClick={() => onViewChange('list')}
+              isActive={currentActiveView === 'list'}
+              onClick={() => handleNavigation('list')}
               disabled={newPrayerPointsBeingModified}
             />
             <NavItem
               label="Prayer Session"
-              isActive={activeView === 'session'}
-              onClick={() => onViewChange('session')}
+              isActive={currentActiveView === 'session'}
+              onClick={() => handleNavigation('session')}
               disabled={newPrayerPointsBeingModified}
             />
             {newPrayerPointsBeingModified && (
