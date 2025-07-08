@@ -3,9 +3,12 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { PrayerList } from '@/components/PrayerList';
 import { Navigation } from '@/components/Navigation';
+import { BigCard } from '@/components/BigCard';
+import { useRouter } from 'next/navigation';
 
 export default function DashboardPage() {
   const { user, loading } = useAuth();
+  const router = useRouter();
 
   // Show loading state while authentication is being determined
   if (loading) {
@@ -36,8 +39,28 @@ export default function DashboardPage() {
     <div className="min-h-screen">
       <Navigation />
 
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <PrayerList />
+      <main className="max-w-5xl mx-auto py-6 sm:px-6 lg:px-8">
+        {/* Quick Action Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <BigCard
+            title="New Prayers"
+            subtitle="Add and organize new prayer points"
+            onClick={() => router.push('/new')}
+          />
+          <BigCard
+            title="Prayer Session"
+            subtitle="Start a guided prayer session"
+            onClick={() => router.push('/session')}
+          />
+        </div>
+
+        {/* Prayer List */}
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
+            Your Prayers
+          </h2>
+          <PrayerList />
+        </div>
       </main>
     </div>
   );
