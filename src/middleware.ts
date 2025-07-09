@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
 
 // Middleware temporarily disabled for debugging API routes
-export async function middleware(request: NextRequest) {
+export async function middleware() {
   // TODO at some point re-enable this middleware to handle authentication
   // and to handle going back to /auth when not authenticated
 

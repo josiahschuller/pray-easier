@@ -44,7 +44,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (accessToken && userData) {
       try {
         setUser(JSON.parse(userData));
-      } catch (e) {
+      } catch {
         // Invalid stored data
         localStorage.removeItem('accessToken');
         localStorage.removeItem('userData');

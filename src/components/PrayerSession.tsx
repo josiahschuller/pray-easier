@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
 import { usePrayerPoints } from '@/hooks/usePrayerPoints';
 import toast from 'react-hot-toast';
 import type { PrayerPoint } from '@/types/database';
@@ -22,7 +21,6 @@ export function PrayerSession() {
     prayerCount: number;
     duration: string;
   } | null>(null);
-  const { user } = useAuth();
   const { prayers, loading, updatePrayer } = usePrayerPoints();
 
   const formatDuration = (startTime: Date, endTime: Date): string => {
