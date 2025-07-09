@@ -2,51 +2,45 @@
 
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { ProcessedPrayer } from '@/types/database';
 import TextareaAutosize from 'react-textarea-autosize';
 import toast from 'react-hot-toast';
-import { supabase } from '@/services/supabase';
 
-export function PrayerInput() {
+interface PrayerInputProps {
+  onPrayersProcessed: (prayers: ProcessedPrayer[]) => void;
+}
+
+export function PrayerInput({ onPrayersProcessed }: PrayerInputProps) {
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!text.trim()) return;
+    if (!text.trim() || !user) return;
 
-    setLoading(true);
     try {
-      // First, send the text to our API for processing
-      const response = await fetch('/api/process-prayers', {
+      setLoading(true);
+      // Process the prayer text using the API
+      const response = await fetch(`/api/processPrayer?userId=${user?.id}`, {
         method: 'POST',
         headers: {
+          Authorization: `Bearer ${user?.accessToken}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ text }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to process prayers');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to process prayer text');
       }
 
-      const prayers = await response.json();
-
-      // Then, save the processed prayers to Supabase
-      const { error } = await supabase.from('prayer_points').insert(
-        prayers.map((prayer: { category: string; content: string }) => ({
-          user_id: user?.id,
-          category_id: prayer.category.toLowerCase(),
-          content: prayer.content,
-          is_resolved: false,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        }))
-      );
-
-      if (error) throw error;
-
-      toast.success('Prayer points added successfully!');
+      const data = await response.json();
+      const processedPrayers = data.prayers;
+      
+      // Pass the processed prayers to the confirmation component
+      onPrayersProcessed(processedPrayers);
       setText('');
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'An error occurred');
@@ -72,13 +66,13 @@ export function PrayerInput() {
             minRows={3}
             value={text}
             onChange={(e) => setText(e.target.value)}
-            className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border border-gray-300 rounded-md p-2"
+            className="shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm border border-gray-300 rounded-md p-2"
             placeholder="Enter your prayer points here..."
           />
           <button
             type="submit"
             disabled={loading || !text.trim()}
-            className="mt-3 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+            className="mt-3 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50"
           >
             {loading ? 'Processing...' : 'Submit Prayer Points'}
           </button>

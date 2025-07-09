@@ -3,7 +3,8 @@ export type User = {
   createdAt: Date;
   emailAddress: string;
   passwordHash: string;
-  accessToken?: string;
+  salt: string;
+  accessToken: string;
   name?: string;
 }
 
@@ -15,8 +16,8 @@ export type PrayerCategory = {
 };
 
 export enum PrayerPointStatus {
-  ACTIVE = 'ACTIVE',
-  ARCHIVED = 'ARCHIVED'
+  ACTIVE = 'active',
+  ARCHIVED = 'archived'
 }
 
 export type PrayerPoint = {
@@ -27,3 +28,8 @@ export type PrayerPoint = {
   status: PrayerPointStatus;
   lastTimePrayed?: Date;
 };
+
+export interface ProcessedPrayer {
+  content: string;
+  category: string;
+}
