@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/contexts/AuthContext';
 import { ThemeToggle } from './ThemeToggle';
-import { APP_NAME } from '@/utils/constants';
+import { APP_NAME, ADD_NEW_PRAYERS_PAGE_NAME, PRAYER_LIST_PAGE_NAME, PRAYER_SESSION_PAGE_NAME } from '@/utils/constants';
 import { useRouter, usePathname } from 'next/navigation';
 
 interface NavItemProps {
@@ -73,24 +73,30 @@ export function Navigation({ newPrayerPointsBeingModified = false }: NavigationP
         <div className="flex justify-between h-16">
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
-              <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">{APP_NAME}</h1>
+              <button
+                onClick={() => handleNavigation('list')}
+              >
+                <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                  {APP_NAME}
+                </h1>
+              </button>
             </div>
           </div>
           <div className="flex items-center space-x-4">
             <NavItem
-              label="New Prayers"
-              isActive={currentActiveView === 'input'}
-              onClick={() => handleNavigation('input')}
-              disabled={newPrayerPointsBeingModified}
-            />
-            <NavItem
-              label="Prayer List"
+              label={PRAYER_LIST_PAGE_NAME}
               isActive={currentActiveView === 'list'}
               onClick={() => handleNavigation('list')}
               disabled={newPrayerPointsBeingModified}
             />
             <NavItem
-              label="Prayer Session"
+              label={ADD_NEW_PRAYERS_PAGE_NAME}
+              isActive={currentActiveView === 'input'}
+              onClick={() => handleNavigation('input')}
+              disabled={newPrayerPointsBeingModified}
+            />
+            <NavItem
+              label={PRAYER_SESSION_PAGE_NAME}
               isActive={currentActiveView === 'session'}
               onClick={() => handleNavigation('session')}
               disabled={newPrayerPointsBeingModified}

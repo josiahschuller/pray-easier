@@ -184,19 +184,15 @@ export function PrayerSession() {
     return (
       <div className="bg-white dark:bg-gray-800 shadow sm:rounded-lg">
         <div className="px-4 py-5 sm:p-6 text-center">
-          <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-gray-100 mb-2">
+          <h3 className="text-2xl leading-6 font-medium text-gray-900 dark:text-gray-100 mb-2">
             Prayer Session Complete
           </h3>
           <div className="mt-4 space-y-3">
-            <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 transition-colors">
-              <div className="text-sm text-gray-500 dark:text-gray-400">
-                You prayed for {sessionSummary.prayerCount} prayer point{sessionSummary.prayerCount !== 1 ? 's' : ''}!
-              </div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">
+              You prayed for {sessionSummary.prayerCount} prayer point{sessionSummary.prayerCount !== 1 ? 's' : ''}!
             </div>
-            <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 transition-colors">
-              <div className="text-sm text-gray-500 dark:text-gray-400">
-                Total session time: {sessionSummary.duration}
-              </div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">
+              Total session time: {sessionSummary.duration}
             </div>
           </div>
           <button
@@ -214,7 +210,7 @@ export function PrayerSession() {
     return (
       <div className="bg-white dark:bg-gray-800 shadow sm:rounded-lg">
         <div className="px-4 py-5 sm:p-6 text-center">
-          <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-gray-100">
+          <h3 className="text-2xl leading-6 font-medium text-gray-900 dark:text-gray-100">
             Start a Prayer Session
           </h3>
           <div className="mt-2 max-w-xl text-sm text-gray-500 dark:text-gray-400 mx-auto">
@@ -238,14 +234,9 @@ export function PrayerSession() {
     <div className="bg-white dark:bg-gray-800 shadow sm:rounded-lg">
       <div className="px-4 py-5 sm:p-6">
         <div className="text-center">
-          <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-gray-100">
+          <h3 className="text-2xl leading-6 font-medium text-gray-900 dark:text-gray-100">
             Current Prayer Point
           </h3>
-          
-          {/* Progress indicator */}
-          <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-            Prayed {prayedPrayerIds.length - 1} prayer point{prayedPrayerIds.length - 1 !== 1 ? 's' : ''}
-          </div>
           
           {currentPrayer && (
             <div className="mt-4">
@@ -255,7 +246,12 @@ export function PrayerSession() {
               <p className="text-lg text-gray-900 dark:text-gray-100">{currentPrayer.content}</p>
             </div>
           )}
-          <div className="mt-6 space-x-4">
+          
+          {/* Progress indicator */}
+          <div className="mt-6 text-sm text-gray-500 dark:text-gray-400">
+            Prayed {prayedPrayerIds.length - 1} prayer point{prayedPrayerIds.length - 1 !== 1 ? 's' : ''}
+          </div>
+          <div className="mt-2 space-x-4">
             <button
               onClick={getNextPrayer}
               className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"

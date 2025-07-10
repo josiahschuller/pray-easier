@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { PrayerList } from '@/components/PrayerList';
 import { Navigation } from '@/components/Navigation';
 import { BigCard } from '@/components/BigCard';
+import { ADD_NEW_PRAYERS_PAGE_NAME, PRAYER_SESSION_PAGE_NAME } from '@/utils/constants';
 import { useRouter } from 'next/navigation';
 
 export default function DashboardPage() {
@@ -43,12 +44,12 @@ export default function DashboardPage() {
         {/* Quick Action Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <BigCard
-            title="New Prayers"
-            subtitle="Add and organize new prayer points"
+            title={ADD_NEW_PRAYERS_PAGE_NAME}
+            subtitle="Add and organise new prayer points"
             onClick={() => router.push('/new')}
           />
           <BigCard
-            title="Prayer Session"
+            title={PRAYER_SESSION_PAGE_NAME}
             subtitle="Start a guided prayer session"
             onClick={() => router.push('/session')}
           />

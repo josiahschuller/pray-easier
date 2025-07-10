@@ -1,4 +1,6 @@
 import OpenAI from 'openai';
+import { readFileSync } from 'fs';
+import { join } from 'path';
 
 /**
  * Prayer point structure returned by OpenAI processing
@@ -13,22 +15,7 @@ export interface ProcessedPrayerPoint {
  */
 export class OpenAIService {
   private openai: OpenAI;
-  
-  /**
-   * Default prayer categories that the AI should use
-   */
-  private readonly defaultCategories = [
-    'Praise', 
-    'Thanksgiving', 
-    'Confession', 
-    'Supplication', 
-    'Guidance', 
-    'Protection', 
-    'Healing', 
-    'Family', 
-    'Church', 
-    'World'
-  ];
+  private systemPrompt: string;
 
   constructor() {
     if (!process.env.OPENAI_API_KEY) {
@@ -38,25 +25,27 @@ export class OpenAIService {
     this.openai = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
     });
+
+    // Load system prompt from file
+    this.systemPrompt = readFileSync(
+      join(process.cwd(), 'src', 'utils', 'openaiSystemPrompt.txt'),
+      'utf-8'
+    );
   }
 
   /**
-   * Process prayer text and organize it into categorized prayer points
+   * Process prayer text and organise it into categorized prayer points
    * @param text - The input text to process into prayer points
    * @returns Array of categorized prayer points
    */
   async processPrayerText(text: string): Promise<ProcessedPrayerPoint[]> {
     try {
       const response = await this.openai.chat.completions.create({
-        model: "gpt-4-turbo-preview",
+        model: "gpt-4.1-nano",
         messages: [
           {
             role: "system",
-            content: `You are a helpful assistant that organizes prayer points into categories. 
-            Convert regular information into prayer format if needed.
-            Categories should be one of: ${this.defaultCategories.join(', ')}.
-            Return the response as a JSON array of objects with 'category' and 'content' properties.
-            Example response format: {"prayers": [{"category": "Thanksgiving", "content": "Thank you for..."}]}`
+            content: this.systemPrompt
           },
           {
             role: "user",
@@ -72,24 +61,6 @@ export class OpenAIService {
       console.error('Error processing prayer text with OpenAI:', error);
       throw new Error('Failed to process prayer text');
     }
-  }
-
-  /**
-   * Get the list of supported prayer categories
-   * @returns Array of category names
-   */
-  getCategories(): string[] {
-    return [...this.defaultCategories];
-  }
-
-  /**
-   * Process multiple prayer texts in batch
-   * @param texts - Array of texts to process
-   * @returns Array of arrays of processed prayer points
-   */
-  async processPrayerTextBatch(texts: string[]): Promise<ProcessedPrayerPoint[][]> {
-    const promises = texts.map(text => this.processPrayerText(text));
-    return Promise.all(promises);
   }
 }
 
