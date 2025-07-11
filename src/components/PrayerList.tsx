@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { usePrayerPoints } from '@/hooks/usePrayerPoints';
 import { PrayerPointStatus, PrayerPoint } from '@/types/database';
-import { ARCHIVE_BUTTON_TEXT, ARCHIVED_SECTION_TEXT } from '@/utils/constants';
+import { ARCHIVE_BUTTON_TEXT, ARCHIVED_SECTION_TEXT, UNARCHIVE_BUTTON_TEXT } from '@/utils/constants';
 import toast from 'react-hot-toast';
 
 // Local interface for prayers with category name
@@ -15,34 +15,34 @@ interface PrayerItemProps {
   prayer: PrayerPointWithCategory;
   onResolve: (prayerId: number) => void;
   onUnarchive?: (prayerId: number) => void;
+  isUpdating?: boolean;
 }
 
 /**
  * Individual prayer item component with archive/unarchive functionality
  */
-function PrayerItem({ prayer, onResolve, onUnarchive }: PrayerItemProps) {
+function PrayerItem({ prayer, onResolve, onUnarchive, isUpdating = false }: PrayerItemProps) {
   const isArchived = prayer.status === PrayerPointStatus.ARCHIVED;
   
+  const onClick = isArchived ? onUnarchive : onResolve;
+
   return (
-    <div className={`flex items-start justify-between ${isArchived ? 'opacity-50' : ''}`}>
-      <p className="text-sm text-gray-500">{prayer.content}</p>
+    <div className="flex items-start justify-between">
+      <p className={`text-sm text-gray-500 ${isArchived ? 'opacity-50' : ''}`}>{prayer.content}</p>
       
-      {/* Show unarchive button for archived prayers, archive button for active prayers */}
-      {isArchived ? (
-        <button
-          onClick={() => onUnarchive?.(prayer.id)}
-          className="ml-4 w-35 flex-shrink-0 px-3 py-1 text-sm font-medium text-secondary rounded-md border border-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-secondary transition-colors duration-200 hover:bg-secondary-light hover:text-secondary-hover"
-        >
-          Unarchive
-        </button>
-      ) : (
-        <button
-          onClick={() => onResolve(prayer.id)}
-          className="ml-4 w-35 flex-shrink-0 px-3 py-1 text-sm font-medium text-white rounded-md border border-transparent focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors duration-200 bg-primary hover:bg-primary-hover"
-        >
-          {ARCHIVE_BUTTON_TEXT}
-        </button>
-      )}
+      <button
+        onClick={() => onClick?.(prayer.id)}
+        disabled={isUpdating}
+        className={`ml-4 w-35 flex-shrink-0 px-3 py-1 text-sm font-medium text-white rounded-md border border-transparent focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors duration-200 ${
+          isUpdating 
+            ? 'bg-gray-400 cursor-not-allowed opacity-75' 
+            : isArchived 
+              ? 'bg-secondary hover:bg-secondary-hover' 
+              : 'bg-primary hover:bg-primary-hover'
+        }`}
+      >
+        {isUpdating ? 'Updating...' : isArchived ? UNARCHIVE_BUTTON_TEXT : ARCHIVE_BUTTON_TEXT}
+      </button>
     </div>
   );
 }
@@ -111,12 +111,13 @@ interface PrayerCategorySectionProps {
   prayers: PrayerPointWithCategory[];
   onResolve: (prayerId: number) => void;
   onUnarchive?: (prayerId: number) => void;
+  optimisticUpdates?: Set<number>;
 }
 
 /**
  * Collapsible section for a category of prayers
  */
-function PrayerCategorySection({ categoryName, prayers, onResolve, onUnarchive }: PrayerCategorySectionProps) {
+function PrayerCategorySection({ categoryName, prayers, onResolve, onUnarchive, optimisticUpdates = new Set() }: PrayerCategorySectionProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
@@ -135,6 +136,7 @@ function PrayerCategorySection({ categoryName, prayers, onResolve, onUnarchive }
             prayer={prayer}
             onResolve={onResolve}
             onUnarchive={onUnarchive}
+            isUpdating={optimisticUpdates.has(prayer.id)}
           />
         ))}
       </AccordionContent>
@@ -172,20 +174,49 @@ function sortPrayersAlphabetically(prayers: PrayerPointWithCategory[]) {
  */
 export function PrayerList() {
   const { prayers, updatePrayer, loading } = usePrayerPoints();
+  const [optimisticUpdates, setOptimisticUpdates] = useState<Set<number>>(new Set());
 
-  // Handler for archiving prayers with toast notification
-  const handleResolve = (prayerId: number) => {
-    updatePrayer(prayerId, { status: PrayerPointStatus.ARCHIVED });
-    toast.success('Prayer archived successfully');
+  // Handler for archiving prayers with optimistic updates
+  const handleResolve = async (prayerId: number) => {
+    // Add to optimistic updates set to prevent duplicate clicks
+    setOptimisticUpdates(prev => new Set([...prev, prayerId]));
+    
+    try {
+      await updatePrayer(prayerId, { status: PrayerPointStatus.ARCHIVED });
+      toast.success('Prayer archived successfully');
+    } catch (error) {
+      toast.error('Failed to archive prayer');
+    } finally {
+      // Remove from optimistic updates
+      setOptimisticUpdates(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(prayerId);
+        return newSet;
+      });
+    }
   };
 
-  // Handler for unarchiving prayers with toast notification
-  const handleUnarchive = (prayerId: number) => {
-    updatePrayer(prayerId, { status: PrayerPointStatus.ACTIVE });
-    toast.success('Prayer unarchived successfully');
+  // Handler for unarchiving prayers with optimistic updates
+  const handleUnarchive = async (prayerId: number) => {
+    // Add to optimistic updates set to prevent duplicate clicks
+    setOptimisticUpdates(prev => new Set([...prev, prayerId]));
+    
+    try {
+      await updatePrayer(prayerId, { status: PrayerPointStatus.ACTIVE });
+      toast.success('Prayer unarchived successfully');
+    } catch (error) {
+      toast.error('Failed to unarchive prayer');
+    } finally {
+      // Remove from optimistic updates
+      setOptimisticUpdates(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(prayerId);
+        return newSet;
+      });
+    }
   };
 
-  if (loading) {
+  if (loading && prayers.length === 0) {
     return (
       <div className="text-center py-12">
         <p className="text-gray-500">Loading prayers...</p>
@@ -212,6 +243,7 @@ export function PrayerList() {
             prayers={sortPrayersAlphabetically(categoryPrayers)}
             onResolve={handleResolve}
             onUnarchive={handleUnarchive}
+            optimisticUpdates={optimisticUpdates}
           />
         ))}
 
@@ -223,11 +255,12 @@ export function PrayerList() {
           prayers={sortPrayersAlphabetically(archivedPrayers)}
           onResolve={handleResolve}
           onUnarchive={handleUnarchive}
+          optimisticUpdates={optimisticUpdates}
         />
       )}
 
       {/* Empty state when no prayers exist */}
-      {prayers.length === 0 && (
+      {prayers.length === 0 && !loading && (
         <div className="text-center py-12">
           <p className="text-gray-500">No prayers added yet.</p>
         </div>
