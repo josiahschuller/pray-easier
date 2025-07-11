@@ -14,7 +14,7 @@ export function BigCard({ title, subtitle, onClick, className = "" }: BigCardPro
       className={`
         group relative overflow-hidden
         w-full aspect-square
-        bg-white dark:bg-gray-800 
+        bg-warm-100 dark:bg-warm-100 
         border border-gray-200 dark:border-gray-700
         rounded-xl shadow-sm hover:shadow-md
         transition-all duration-200 ease-in-out

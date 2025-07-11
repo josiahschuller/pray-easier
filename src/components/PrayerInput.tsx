@@ -50,34 +50,32 @@ export function PrayerInput({ onPrayersProcessed }: PrayerInputProps) {
   };
 
   return (
-    <div className="bg-white shadow sm:rounded-lg">
-      <div className="px-4 py-5 sm:p-6">
-        <h3 className="text-2xl leading-6 font-medium text-gray-900">
-          Add New Prayer Points
-        </h3>
-        <div className="mt-2 max-w-xl text-sm text-gray-500">
-          <p>
-            Enter your prayer points below. You can paste text from emails, news articles,
-            or write your own prayers. The system will organise them into categories for you.
-          </p>
-        </div>
-        <form onSubmit={handleSubmit} className="mt-5">
-          <TextareaAutosize
-            minRows={3}
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            className="shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm border border-gray-300 rounded-md p-2"
-            placeholder="Enter your prayer points here..."
-          />
-          <button
-            type="submit"
-            disabled={loading || !text.trim()}
-            className="mt-3 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50"
-          >
-            {loading ? 'Processing...' : 'Submit Prayer Points'}
-          </button>
-        </form>
+    <div className="max-w-4xl mx-auto">
+      <h3 className="text-2xl leading-6 font-medium text-gray-900 dark:text-gray-100 mb-4">
+        Add New Prayer Points
+      </h3>
+      <div className="mb-6 max-w-xl text-sm text-gray-500 dark:text-gray-400">
+        <p>
+          Enter your prayer points below. You can paste text from emails, news articles,
+          or write your own prayers. The system will organise them into categories for you.
+        </p>
       </div>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <TextareaAutosize
+          minRows={3}
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          className="focus:ring-primary focus:border-primary block w-full sm:text-sm border border-gray-300 dark:border-gray-600 rounded-md p-3 bg-warm-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+          placeholder="Enter your prayer points here..."
+        />
+        <button
+          type="submit"
+          disabled={loading || !text.trim()}
+          className="inline-flex items-center px-6 py-3 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {loading ? 'Processing...' : 'Submit Prayer Points'}
+        </button>
+      </form>
     </div>
   );
 } 
