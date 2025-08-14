@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { usePrayerPoints } from '@/hooks/usePrayerPoints';
 import toast from 'react-hot-toast';
 import type { PrayerPoint } from '@/types/database';
@@ -16,13 +17,14 @@ interface SessionSummaryCardProps {
     prayerCount: number;
     duration: string;
   };
-  onClose: () => void;
 }
 
 /**
  * Component to display the session summary after completion
  */
-function SessionSummaryCard({ summary, onClose }: SessionSummaryCardProps) {
+function SessionSummaryCard({ summary }: SessionSummaryCardProps) {
+  const router = useRouter();
+
   return (
     <div className="text-center py-12">
       <h3 className="text-2xl leading-6 font-medium text-gray-900 dark:text-gray-100 mb-6">
@@ -37,10 +39,10 @@ function SessionSummaryCard({ summary, onClose }: SessionSummaryCardProps) {
         </div>
       </div>
       <button
-        onClick={onClose}
+        onClick={() => router.push('/dashboard')}
         className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
       >
-        Close
+        Home
       </button>
     </div>
   );
@@ -77,32 +79,22 @@ function StartSessionCard({ onStart }: StartSessionCardProps) {
 
 interface CurrentPrayerDisplayProps {
   prayer: PrayerPointWithCategory;
-  prayedCount: number;
   isTransitioning: boolean;
 }
 
 /**
  * Component to display the current prayer point information
  */
-function CurrentPrayerDisplay({ prayer, prayedCount, isTransitioning }: CurrentPrayerDisplayProps) {
+function CurrentPrayerDisplay({ prayer, isTransitioning }: CurrentPrayerDisplayProps) {
   return (
-    <div className={`text-center py-8 transition-opacity duration-300 ${isTransitioning ? 'opacity-30' : 'opacity-100'}`}>
-      <h3 className="text-2xl leading-6 font-medium text-gray-900 dark:text-gray-100 mb-6">
-        Current Prayer Point
-      </h3>
-      
+    <div className={`text-center py-8 transition-opacity duration-300 ${isTransitioning ? 'opacity-30' : 'opacity-100'}`}>      
       <div className="mb-8">
-        <p className="text-sm text-gray-500 dark:text-gray-400 capitalize mb-3">
-          Category: {prayer.categoryName || 'Uncategorized'}
-        </p>
-        <p className="text-lg text-gray-900 dark:text-gray-100 leading-relaxed">
+        <p className="text-lg text-gray-900 dark:text-gray-100 leading-relaxed mb-2">
           {prayer.content}
         </p>
-      </div>
-      
-      {/* Progress indicator */}
-      <div className="text-sm text-gray-500 dark:text-gray-400 mb-6">
-        Prayed {prayedCount} prayer point{prayedCount !== 1 ? 's' : ''}
+        <p className="text-sm text-gray-500 dark:text-gray-400 capitalize">
+          Category: {prayer.categoryName || 'Uncategorized'}
+        </p>
       </div>
     </div>
   );
@@ -120,28 +112,35 @@ interface SessionControlsProps {
  */
 function SessionControls({ onNext, onArchive, onEnd, isTransitioning }: SessionControlsProps) {
   return (
-    <div className="flex justify-center space-x-4">
-      <button
-        onClick={onNext}
-        disabled={isTransitioning}
-        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        {isTransitioning ? 'Loading...' : 'Next Prayer'}
-      </button>
-      <button
-        onClick={onArchive}
-        disabled={isTransitioning}
-        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-secondary hover:bg-secondary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-secondary disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        {ARCHIVE_BUTTON_TEXT}
-      </button>
-      <button
-        onClick={onEnd}
-        disabled={isTransitioning}
-        className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md shadow-sm text-gray-700 dark:text-gray-300 bg-warm-100 dark:bg-warm-100 hover:bg-warm-200 dark:hover:bg-warm-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        End Session
-      </button>
+    <div className="space-y-4">
+      {/* Primary action - most prominent */}
+      <div className="flex justify-center">
+        <button
+          onClick={onNext}
+          disabled={isTransitioning}
+          className="inline-flex items-center px-8 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isTransitioning ? 'Loading...' : 'Next Prayer'}
+        </button>
+      </div>
+      
+      {/* Secondary actions - smaller and side by side */}
+      <div className="flex justify-center space-x-4">
+        <button
+          onClick={onArchive}
+          disabled={isTransitioning}
+          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-secondary hover:bg-secondary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {ARCHIVE_BUTTON_TEXT}
+        </button>
+        <button
+          onClick={onEnd}
+          disabled={isTransitioning}
+          className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md shadow-sm text-gray-700 dark:text-gray-300 bg-warm-100 dark:bg-warm-100 hover:bg-warm-200 dark:hover:bg-warm-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          End Session
+        </button>
+      </div>
     </div>
   );
 }
@@ -260,11 +259,6 @@ export function PrayerSession() {
     }
   };
 
-  const closeSummary = () => {
-    setShowSessionSummary(false);
-    setSessionSummary(null);
-  };
-
   const getNextPrayer = async () => {
     if (!sessionId) return;
 
@@ -342,7 +336,7 @@ export function PrayerSession() {
   }
 
   if (showSessionSummary && sessionSummary) {
-    return <SessionSummaryCard summary={sessionSummary} onClose={closeSummary} />;
+    return <SessionSummaryCard summary={sessionSummary} />;
   }
 
   if (!sessionId) {
@@ -353,9 +347,17 @@ export function PrayerSession() {
     <div>
       {currentPrayer && (
         <>
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+              Prayer Session
+            </h1>
+            {/* Progress indicator */}
+            <div className="text-sm text-gray-500 dark:text-gray-400">
+              Prayed {prayedPrayerIds.length - 1} prayer point{prayedPrayerIds.length - 1 !== 1 ? 's' : ''}
+            </div>
+          </div>
           <CurrentPrayerDisplay 
             prayer={currentPrayer} 
-            prayedCount={prayedPrayerIds.length - 1} 
             isTransitioning={isTransitioning}
           />
           <SessionControls

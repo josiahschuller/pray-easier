@@ -34,7 +34,7 @@ export default function NewPrayersPage() {
   // Show loading state while authentication is being determined
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center px-4">
         <div className="text-center">
           <div className="spinner animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 mx-auto"></div>
           <p className="mt-4">Loading...</p>
@@ -44,7 +44,7 @@ export default function NewPrayersPage() {
   } else if (!user) {    
     // Redirect to auth page
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center px-4">
         <div className="text-center">
           <h2 className="text-2xl font-bold">Access Denied</h2>
           <p className="mt-2">You must be logged in to access this page.</p>
@@ -62,7 +62,7 @@ export default function NewPrayersPage() {
         newPrayerPointsBeingModified={newPrayerPointsBeingModified}
       />
 
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+      <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
         {newPrayerPointsBeingModified ? (
           <PrayerInputConfirm 
             prayers={pendingPrayers}

@@ -5,15 +5,17 @@ interface BigCardProps {
   subtitle?: string;
   onClick: () => void;
   className?: string;
+  width?: string;
+  height?: string;
 }
 
-export function BigCard({ title, subtitle, onClick, className = "" }: BigCardProps) {
+export function BigCard({ title, subtitle, onClick, className = "", width = "w-full", height = "aspect-square" }: BigCardProps) {
   return (
     <button
       onClick={onClick}
       className={`
         group relative overflow-hidden
-        w-full aspect-square
+        ${width} ${height}
         bg-warm-100 dark:bg-warm-100 
         border border-gray-200 dark:border-gray-700
         rounded-xl shadow-sm hover:shadow-md

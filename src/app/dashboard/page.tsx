@@ -14,7 +14,7 @@ export default function DashboardPage() {
   // Show loading state while authentication is being determined
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center px-4">
         <div className="text-center">
           <div className="spinner animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 mx-auto"></div>
           <p className="mt-4">Loading...</p>
@@ -24,7 +24,7 @@ export default function DashboardPage() {
   } else if (!user) {    
     // Redirect to auth page
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center px-4">
         <div className="text-center">
           <h2 className="text-2xl font-bold">Access Denied</h2>
           <p className="mt-2">You must be logged in to access this page.</p>
@@ -40,18 +40,20 @@ export default function DashboardPage() {
     <div className="min-h-screen">
       <Navigation />
 
-      <main className="max-w-5xl mx-auto py-6 sm:px-6 lg:px-8">
+      <main className="max-w-5xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
         {/* Quick Action Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <BigCard
             title={ADD_NEW_PRAYERS_PAGE_NAME}
             subtitle="Add and organise new prayer points"
             onClick={() => router.push('/new')}
+            height="h-48 md:h-auto md:aspect-square"
           />
           <BigCard
             title={PRAYER_SESSION_PAGE_NAME}
             subtitle="Start a guided prayer session"
             onClick={() => router.push('/session')}
+            height="h-48 md:h-auto md:aspect-square"
           />
         </div>
 
