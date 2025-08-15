@@ -52,18 +52,21 @@ export function Navigation({ newPrayerPointsBeingModified = false }: NavigationP
   const getActiveView = () => {
     if (pathname === '/session') return 'session';
     if (pathname === '/new') return 'input';
-    return 'list'; // Default to list view for dashboard
+    if (pathname === '/prayer-list') return 'list';
+    return 'dashboard'; // Default to dashboard view
   };
 
   const currentActiveView = getActiveView();
 
-  const handleNavigation = (view: 'input' | 'list' | 'session') => {
+  const handleNavigation = (view: 'input' | 'list' | 'session' | 'dashboard') => {
     setIsMobileMenuOpen(false); // Close mobile menu on navigation
     if (view === 'session') {
       router.push('/session');
     } else if (view === 'input') {
       router.push('/new');
     } else if (view === 'list') {
+      router.push('/prayer-list');
+    } else if (view === 'dashboard') {
       router.push('/dashboard');
     }
   };
@@ -74,43 +77,73 @@ export function Navigation({ newPrayerPointsBeingModified = false }: NavigationP
     window.location.href = '/auth';
   };
 
+  // Navigation items configuration
+  const navItems = [
+    {
+      label: ADD_NEW_PRAYERS_PAGE_NAME,
+      view: 'input' as const,
+      isActive: currentActiveView === 'input',
+    },
+    {
+      label: PRAYER_SESSION_PAGE_NAME,
+      view: 'session' as const,
+      isActive: currentActiveView === 'session',
+    },
+    {
+      label: PRAYER_LIST_PAGE_NAME,
+      view: 'list' as const,
+      isActive: currentActiveView === 'list',
+    },
+  ];
+
   return (
     <nav className="bg-warm-50 dark:bg-warm-100 shadow-sm border-b border-gray-200 dark:border-gray-700">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-0 sm:mx-auto px-0 sm:px-2 lg:px-8">
         {/* Desktop Navigation */}
         <div className="flex justify-between h-16">
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
               <button
-                onClick={() => handleNavigation('list')}
+                onClick={() => handleNavigation('dashboard')}
               >
                 <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
                   {APP_NAME}
                 </h1>
+              </button>
+              <button
+                onClick={() => handleNavigation('dashboard')}
+                className="ml-4 p-2 rounded-md text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 transition-colors duration-200"
+                title="Home"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                  />
+                </svg>
               </button>
             </div>
           </div>
           
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-4">
-            <NavItem
-              label={PRAYER_LIST_PAGE_NAME}
-              isActive={currentActiveView === 'list'}
-              onClick={() => handleNavigation('list')}
-              disabled={newPrayerPointsBeingModified}
-            />
-            <NavItem
-              label={ADD_NEW_PRAYERS_PAGE_NAME}
-              isActive={currentActiveView === 'input'}
-              onClick={() => handleNavigation('input')}
-              disabled={newPrayerPointsBeingModified}
-            />
-            <NavItem
-              label={PRAYER_SESSION_PAGE_NAME}
-              isActive={currentActiveView === 'session'}
-              onClick={() => handleNavigation('session')}
-              disabled={newPrayerPointsBeingModified}
-            />
+            {navItems.map((item) => (
+              <NavItem
+                key={item.view}
+                label={item.label}
+                isActive={item.isActive}
+                onClick={() => handleNavigation(item.view)}
+                disabled={newPrayerPointsBeingModified}
+              />
+            ))}
             {newPrayerPointsBeingModified && (
               <span className="text-sm text-gray-600 dark:text-gray-400 ml-4">
                 Reviewing prayer points...
@@ -177,34 +210,22 @@ export function Navigation({ newPrayerPointsBeingModified = false }: NavigationP
                 : 'max-h-0 opacity-0 transform -translate-y-2'
             }`}
           >
-            <div className="px-2 pt-2 pb-3 space-y-1 bg-warm-50 dark:bg-warm-100 border-t border-gray-200 dark:border-gray-700">
-              <div className={`transition-all duration-300 delay-75 ${isMobileMenuOpen ? 'opacity-100 transform translate-x-0' : 'opacity-0 transform -translate-x-4'}`}>
-                <NavItem
-                  label={PRAYER_LIST_PAGE_NAME}
-                  isActive={currentActiveView === 'list'}
-                  onClick={() => handleNavigation('list')}
-                  disabled={newPrayerPointsBeingModified}
-                  mobile={true}
-                />
-              </div>
-              <div className={`transition-all duration-300 delay-100 ${isMobileMenuOpen ? 'opacity-100 transform translate-x-0' : 'opacity-0 transform -translate-x-4'}`}>
-                <NavItem
-                  label={ADD_NEW_PRAYERS_PAGE_NAME}
-                  isActive={currentActiveView === 'input'}
-                  onClick={() => handleNavigation('input')}
-                  disabled={newPrayerPointsBeingModified}
-                  mobile={true}
-                />
-              </div>
-              <div className={`transition-all duration-300 delay-150 ${isMobileMenuOpen ? 'opacity-100 transform translate-x-0' : 'opacity-0 transform -translate-x-4'}`}>
-                <NavItem
-                  label={PRAYER_SESSION_PAGE_NAME}
-                  isActive={currentActiveView === 'session'}
-                  onClick={() => handleNavigation('session')}
-                  disabled={newPrayerPointsBeingModified}
-                  mobile={true}
-                />
-              </div>
+            <div className="px-0 pt-2 pb-3 space-y-1 bg-warm-50 dark:bg-warm-100 border-t border-gray-200 dark:border-gray-700">
+              {navItems.map((item, index) => (
+                <div
+                  key={item.view}
+                  className={`transition-all duration-300 ${isMobileMenuOpen ? 'opacity-100 transform translate-x-0' : 'opacity-0 transform -translate-x-4'}`}
+                  style={{ transitionDelay: `${(index + 1) * 75}ms` }}
+                >
+                  <NavItem
+                    label={item.label}
+                    isActive={item.isActive}
+                    onClick={() => handleNavigation(item.view)}
+                    disabled={newPrayerPointsBeingModified}
+                    mobile={true}
+                  />
+                </div>
+              ))}
               {newPrayerPointsBeingModified && (
                 <div className={`px-3 py-2 transition-all duration-300 delay-200 ${isMobileMenuOpen ? 'opacity-100 transform translate-x-0' : 'opacity-0 transform -translate-x-4'}`}>
                   <span className="text-sm text-gray-600 dark:text-gray-400">

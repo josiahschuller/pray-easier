@@ -1,10 +1,9 @@
 'use client';
 
 import { useAuth } from '@/contexts/AuthContext';
-import { PrayerList } from '@/components/PrayerList';
 import { Navigation } from '@/components/Navigation';
-import { BigCard } from '@/components/BigCard';
-import { ADD_NEW_PRAYERS_PAGE_NAME, PRAYER_SESSION_PAGE_NAME } from '@/utils/constants';
+import { ActionButton } from '@/components/ActionButton';
+import { ADD_NEW_PRAYERS_PAGE_NAME, PRAYER_SESSION_PAGE_NAME, PRAYER_LIST_PAGE_NAME } from '@/utils/constants';
 import { useRouter } from 'next/navigation';
 
 export default function DashboardPage() {
@@ -40,29 +39,68 @@ export default function DashboardPage() {
     <div className="min-h-screen">
       <Navigation />
 
-      <main className="max-w-5xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        {/* Quick Action Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <BigCard
-            title={ADD_NEW_PRAYERS_PAGE_NAME}
-            subtitle="Add and organise new prayer points"
-            onClick={() => router.push('/new')}
-            height="h-48 md:h-auto md:aspect-square"
-          />
-          <BigCard
-            title={PRAYER_SESSION_PAGE_NAME}
-            subtitle="Start a guided prayer session"
-            onClick={() => router.push('/session')}
-            height="h-48 md:h-auto md:aspect-square"
-          />
+      <main className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        {/* Welcome Section */}
+        <div className="mb-12">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Welcome to your prayer dashboard</h1>
+          <p className="text-gray-600 dark:text-gray-400">Choose an action to begin your prayer journey</p>
         </div>
 
-        {/* Prayer List */}
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
-            Your Prayers
-          </h2>
-          <PrayerList />
+        {/* Action Items */}
+        <div className="space-y-4">
+          <ActionButton
+            title={PRAYER_SESSION_PAGE_NAME}
+            description="Start a guided prayer session"
+            onClick={() => router.push('/session')}
+            icon={
+              <svg className="w-6 h-6 text-orange-700 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            }
+            borderColor="border-primary"
+            iconBgColor="bg-orange-100 dark:bg-orange-900/40"
+            iconHoverBgColor="group-hover:bg-orange-200 dark:group-hover:bg-orange-900/60"
+            textHoverColor="group-hover:text-orange-600 dark:group-hover:text-orange-400"
+            gradientFrom="from-orange-50 dark:from-orange-900/20"
+            gradientHoverFrom="hover:from-orange-100 dark:hover:from-orange-900/30"
+            arrowHoverColor="group-hover:text-orange-600 dark:group-hover:text-orange-400"
+          />
+
+          <ActionButton
+            title={ADD_NEW_PRAYERS_PAGE_NAME}
+            description="Add and organise new prayer points"
+            onClick={() => router.push('/new')}
+            icon={
+              <svg className="w-6 h-6 text-slate-600 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+            }
+            borderColor="border-slate-500"
+            iconBgColor="bg-slate-100 dark:bg-slate-800/40"
+            iconHoverBgColor="group-hover:bg-slate-200 dark:group-hover:bg-slate-800/60"
+            textHoverColor="group-hover:text-slate-600 dark:group-hover:text-slate-400"
+            gradientFrom="from-slate-50 dark:from-slate-800/20"
+            gradientHoverFrom="hover:from-slate-100 dark:hover:from-slate-800/30"
+            arrowHoverColor="group-hover:text-slate-600 dark:group-hover:text-slate-400"
+          />
+
+          <ActionButton
+            title={PRAYER_LIST_PAGE_NAME}
+            description="View your prayer list"
+            onClick={() => router.push('/prayer-list')}
+            icon={
+              <svg className="w-6 h-6 text-emerald-700 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
+            }
+            borderColor="border-emerald-600"
+            iconBgColor="bg-emerald-100 dark:bg-emerald-900/30"
+            iconHoverBgColor="group-hover:bg-emerald-100 dark:group-hover:bg-emerald-900/50"
+            textHoverColor="group-hover:text-emerald-700 dark:group-hover:text-emerald-400"
+            gradientFrom="from-emerald-50 dark:from-emerald-900/15"
+            gradientHoverFrom="hover:from-emerald-100 dark:hover:from-emerald-900/25"
+            arrowHoverColor="group-hover:text-emerald-700 dark:group-hover:text-emerald-400"
+          />
         </div>
       </main>
     </div>

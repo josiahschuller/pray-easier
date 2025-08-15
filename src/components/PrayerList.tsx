@@ -33,7 +33,7 @@ function PrayerItem({ prayer, onResolve, onUnarchive, isUpdating = false }: Pray
       <button
         onClick={() => onClick?.(prayer.id)}
         disabled={isUpdating}
-        className={`ml-4 w-35 flex-shrink-0 px-3 py-1 text-sm font-medium text-white rounded-md border border-transparent focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors duration-200 ${
+        className={`ml-4 w-25 flex-shrink-0 px-3 py-1 text-sm font-medium text-white rounded-md border border-transparent focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors duration-200 ${
           isUpdating 
             ? 'bg-gray-400 cursor-not-allowed opacity-75' 
             : isArchived 
@@ -118,7 +118,7 @@ interface PrayerCategorySectionProps {
  * Collapsible section for a category of prayers
  */
 function PrayerCategorySection({ categoryName, prayers, onResolve, onUnarchive, optimisticUpdates = new Set() }: PrayerCategorySectionProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(true);
 
   return (
     <div className="space-y-3">
