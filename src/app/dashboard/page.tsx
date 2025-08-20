@@ -61,8 +61,8 @@ export default function DashboardPage() {
             iconBgColor="bg-orange-100 dark:bg-orange-900/40"
             iconHoverBgColor="group-hover:bg-orange-200 dark:group-hover:bg-orange-900/60"
             textHoverColor="group-hover:text-orange-600 dark:group-hover:text-orange-400"
-            gradientFrom="from-orange-50 dark:from-orange-900/20"
-            gradientHoverFrom="hover:from-orange-100 dark:hover:from-orange-900/30"
+            gradientFrom="from-orange-100 dark:bg-orange-50"
+            gradientHoverFrom="hover:from-orange-100 dark:hover:bg-orange-100"
             arrowHoverColor="group-hover:text-orange-600 dark:group-hover:text-orange-400"
           />
 
@@ -79,8 +79,8 @@ export default function DashboardPage() {
             iconBgColor="bg-slate-100 dark:bg-slate-800/40"
             iconHoverBgColor="group-hover:bg-slate-200 dark:group-hover:bg-slate-800/60"
             textHoverColor="group-hover:text-slate-600 dark:group-hover:text-slate-400"
-            gradientFrom="from-slate-50 dark:from-slate-800/20"
-            gradientHoverFrom="hover:from-slate-100 dark:hover:from-slate-800/30"
+            gradientFrom="from-slate-100 dark:bg-slate-900"
+            gradientHoverFrom="hover:from-slate-100 dark:hover:bg-slate-900"
             arrowHoverColor="group-hover:text-slate-600 dark:group-hover:text-slate-400"
           />
 
@@ -97,8 +97,8 @@ export default function DashboardPage() {
             iconBgColor="bg-emerald-100 dark:bg-emerald-900/30"
             iconHoverBgColor="group-hover:bg-emerald-100 dark:group-hover:bg-emerald-900/50"
             textHoverColor="group-hover:text-emerald-700 dark:group-hover:text-emerald-400"
-            gradientFrom="from-emerald-50 dark:from-emerald-900/15"
-            gradientHoverFrom="hover:from-emerald-100 dark:hover:from-emerald-900/25"
+            gradientFrom="from-emerald-50 dark:bg-emerald-950"
+            gradientHoverFrom="hover:from-emerald-100 dark:hover:bg-emerald-950"
             arrowHoverColor="group-hover:text-emerald-700 dark:group-hover:text-emerald-400"
           />
         </div>

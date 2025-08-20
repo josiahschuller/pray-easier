@@ -1,6 +1,6 @@
 import { AuthForm } from '@/components/AuthForm';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { APP_NAME } from '@/utils/constants';
+import { APP_NAME, CATCH_PHRASE } from '@/utils/constants';
 
 export default function AuthPage() {
   return (
@@ -15,8 +15,8 @@ export default function AuthPage() {
           <h1 className="mt-6 text-center text-4xl font-extrabold text-gray-900 dark:text-gray-100">
             {APP_NAME}
           </h1>
-          <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-300">
-            Sign in to your account or create a new one
+          <p className="mt-2 text-center text-base text-gray-600 dark:text-gray-300">
+            <i>{CATCH_PHRASE}</i>
           </p>
         </div>
         <AuthForm />

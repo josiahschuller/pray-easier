@@ -55,7 +55,7 @@ export function ActionButton({
   return (
     <button
       onClick={onClick}
-      className={`group w-full text-left p-6 border-l-4 ${borderColor} bg-gradient-to-r ${gradientFrom} to-transparent hover:${gradientHoverFrom} transition-all duration-200 hover:shadow-lg`}
+      className={`group w-full text-left p-6 border-l-4 ${borderColor} bg-linear-to-r ${gradientFrom} to-transparent hover:${gradientHoverFrom} transition-all duration-200 hover:shadow-lg dark:bg-black`}
     >
       <div className="flex items-center justify-between">
         {/* Left side: Icon and text content */}
@@ -70,7 +70,6 @@ export function ActionButton({
             <p className="text-sm text-gray-600 dark:text-gray-400">{description}</p>
           </div>
         </div>
-        
         {/* Right side: Arrow indicator that slides on hover */}
         <svg className={`w-5 h-5 text-gray-400 ${arrowHoverColor} group-hover:translate-x-1 transition-all`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
