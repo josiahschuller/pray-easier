@@ -184,7 +184,7 @@ export function PrayerList() {
     try {
       await updatePrayer(prayerId, { status: PrayerPointStatus.ARCHIVED });
       toast.success('Prayer archived successfully');
-    } catch (error) {
+    } catch {
       toast.error('Failed to archive prayer');
     } finally {
       // Remove from optimistic updates
@@ -204,7 +204,7 @@ export function PrayerList() {
     try {
       await updatePrayer(prayerId, { status: PrayerPointStatus.ACTIVE });
       toast.success('Prayer unarchived successfully');
-    } catch (error) {
+    } catch {
       toast.error('Failed to unarchive prayer');
     } finally {
       // Remove from optimistic updates
