@@ -14,6 +14,7 @@ export interface ProcessedPrayerPoint {
  * OpenAI service for processing prayer text and organizing prayer points
  */
 export class OpenAIService {
+  private model: string;
   private openai: OpenAI;
   private systemPrompt: string;
 
@@ -21,6 +22,8 @@ export class OpenAIService {
     if (!process.env.OPENAI_API_KEY) {
       throw new Error('Missing env.OPENAI_API_KEY');
     }
+
+    this.model = "gpt-5-nano";
 
     this.openai = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
@@ -41,7 +44,7 @@ export class OpenAIService {
   async processPrayerText(text: string): Promise<ProcessedPrayerPoint[]> {
     try {
       const response = await this.openai.chat.completions.create({
-        model: "gpt-4.1-nano",
+        model: this.model,
         messages: [
           {
             role: "system",
