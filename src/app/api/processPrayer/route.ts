@@ -4,10 +4,16 @@ import { authoriseRequest } from '@/utils/authoriseRequest';
 
 export async function POST(request: Request) {
   const userId = (new URL(request.url)).searchParams.get('userId');
-  authoriseRequest(
+  const authResult = await authoriseRequest(
       request.headers.get('authorization'),
       userId,
   );
+  
+  // If authorization failed, return the error response
+  if (authResult) {
+    return authResult;
+  }
+  
   try {
     const { text } = await request.json();
     

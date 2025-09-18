@@ -5,10 +5,16 @@ import { PrayerCategory, PrayerPoint, PrayerPointStatus } from '@/types/database
 
 export async function GET(request: Request) {
   const userId = (new URL(request.url)).searchParams.get('userId');
-  authoriseRequest(
+  const authResult = await authoriseRequest(
     request.headers.get('authorization'),
     userId,
   );
+  
+  // If authorization failed, return the error response
+  if (authResult) {
+    return authResult;
+  }
+  
   try {    
     // Fetch prayer categories for the specified user ID
     const prayerCategories = await supabaseService.getPrayerCategoriesByUserId(Number(userId));
@@ -48,10 +54,16 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   const userId = (new URL(request.url)).searchParams.get('userId');
-  authoriseRequest(
+  const authResult = await authoriseRequest(
     request.headers.get('authorization'),
     userId,
   );
+  
+  // If authorization failed, return the error response
+  if (authResult) {
+    return authResult;
+  }
+  
   try {
     // Get prayerCategories and prayerPoints from the request body
     const { prayerCategories, prayerPoints } = await request.json();
@@ -102,10 +114,16 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  authoriseRequest(
+  const authResult = await authoriseRequest(
     request.headers.get('authorization'),
     (new URL(request.url)).searchParams.get('userId'),
   );
+  
+  // If authorization failed, return the error response
+  if (authResult) {
+    return authResult;
+  }
+  
   const { prayerCategoryId, prayerPointId } = await request.json();
   if (!prayerCategoryId && !prayerPointId) {
     return NextResponse.json(
@@ -144,10 +162,16 @@ export async function DELETE(request: Request) {
 }
 
 export async function PATCH(request: Request) {
-  authoriseRequest(
+  const authResult = await authoriseRequest(
     request.headers.get('authorization'),
     (new URL(request.url)).searchParams.get('userId'),
   );
+  
+  // If authorization failed, return the error response
+  if (authResult) {
+    return authResult;
+  }
+  
   try {
     // Get prayerCategories and prayerPoints from the request body
     const { prayerCategories, prayerPoints } = await request.json();
