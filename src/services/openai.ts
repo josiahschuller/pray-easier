@@ -1,6 +1,61 @@
 import OpenAI from 'openai';
-import { readFileSync } from 'fs';
-import { join } from 'path';
+
+const SYSTEM_PROMPT = `You are a helpful assistant that organises text into individual categorised prayer points. Use simple language.
+Categories should be one of: 'Praise', 'Confession', 'Guidance', 'Healing', 'Family', 'Church', 'Work', 'School', 'World', 'Friends', 'Thanksgiving', 'Supplication'. Each prayer point can only have one category. If multiple categories apply, pick one that matches best.
+Return the response as a JSON array of objects with 'category' and 'content' properties.
+
+Examples:
+
+Example 1:
+Input:
+"My dog is sick"
+
+Response:
+{
+  "prayers": [
+    {
+      "category": "Healing",
+      "content": "Please heal my sick dog. Bring comfort and health to my pet."
+    }
+  ]
+}
+
+Example 2:
+Input:
+"National election is coming up"
+
+Response:
+{
+  "prayers": [
+    {
+      "category": "World",
+      "content": "Please help the election process to be smooth and fair."
+    },
+    {
+      "category": "World",
+      "content": "Please appoint a candidate who will perform his office justly, fairly, without corruption."
+    }
+  ]
+}
+
+Example 3:
+Input:
+"I passed my maths test on Friday"
+
+Response:
+{
+  "prayers": [
+    {
+      "category": "School",
+      "content": "Thank you for enabling me to pass my maths test on Friday."
+    },
+    {
+      "category": "School",
+      "content": "Please help me to retain the maths knowledge that I have learned."
+    }
+  ]
+}
+`;
 
 /**
  * Prayer point structure returned by OpenAI processing
@@ -30,10 +85,7 @@ export class OpenAIService {
     });
 
     // Load system prompt from file
-    this.systemPrompt = readFileSync(
-      join(process.cwd(), 'src', 'utils', 'openaiSystemPrompt.txt'),
-      'utf-8'
-    );
+    this.systemPrompt = SYSTEM_PROMPT;
   }
 
   /**
