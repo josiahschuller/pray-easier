@@ -1,5 +1,3 @@
-import OpenAI from 'openai';
-
 const SYSTEM_PROMPT = `You are a helpful assistant that organises text into individual categorised prayer points. Use simple language.
 Categories should be one of: 'Praise', 'Confession', 'Guidance', 'Healing', 'Family', 'Church', 'Work', 'School', 'World', 'Friends', 'Thanksgiving', 'Supplication'. Each prayer point can only have one category. If multiple categories apply, pick one that matches best.
 Return the response as a JSON array of objects with 'category' and 'content' properties.
@@ -70,7 +68,7 @@ export interface ProcessedPrayerPoint {
  */
 export class OpenAIService {
   private model: string;
-  private openai: OpenAI;
+  private apiKey: string;
   private systemPrompt: string;
 
   constructor() {
@@ -78,13 +76,8 @@ export class OpenAIService {
       throw new Error('Missing env.OPENAI_API_KEY');
     }
 
-    this.model = "gpt-5-nano";
-
-    this.openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
-    });
-
-    // Load system prompt from file
+    this.model = "gpt-5-nano"; // Fixed model name
+    this.apiKey = process.env.OPENAI_API_KEY;
     this.systemPrompt = SYSTEM_PROMPT;
   }
 
@@ -95,22 +88,34 @@ export class OpenAIService {
    */
   async processPrayerText(text: string): Promise<ProcessedPrayerPoint[]> {
     try {
-      const response = await this.openai.chat.completions.create({
-        model: this.model,
-        messages: [
-          {
-            role: "system",
-            content: this.systemPrompt
-          },
-          {
-            role: "user",
-            content: text
-          }
-        ],
-        response_format: { type: "json_object" }
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.apiKey}`,
+        },
+        body: JSON.stringify({
+          model: this.model,
+          messages: [
+            {
+              role: "system",
+              content: this.systemPrompt
+            },
+            {
+              role: "user",
+              content: text
+            }
+          ],
+          response_format: { type: "json_object" }
+        })
       });
 
-      const result = JSON.parse(response.choices[0].message.content || '{"prayers": []}');
+      if (!response.ok) {
+        throw new Error(`OpenAI API error: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      const result = JSON.parse(data.choices[0].message.content || '{"prayers": []}');
       return result.prayers || [];
     } catch (error) {
       console.error('Error processing prayer text with OpenAI:', error);
