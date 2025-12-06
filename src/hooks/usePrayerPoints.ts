@@ -315,8 +315,22 @@ export function usePrayerPoints(): UsePrayerPointsReturn {
   const updatePrayer = useCallback(async (id: number, updates: PrayerPointUpdatePayload) => {
     if (!user) return;
 
+    // Update local state immediately for better UX (optimistic update)
+    // Convert string dates to Date objects for local state
+    const localUpdates: Partial<PrayerPoint> = {
+      ...updates,
+      lastTimePrayed: typeof updates.lastTimePrayed === 'string' 
+        ? new Date(updates.lastTimePrayed)
+        : updates.lastTimePrayed
+    };
+    
+    setPrayersState(prev => 
+      prev.map(prayer => 
+        prayer.id === id ? { ...prayer, ...localUpdates } : prayer
+      )
+    );
+
     try {
-      setLoading(true);
       const response = await fetch(`/api/prayerPoints?userId=${user.id}`, {
         method: 'PATCH',
         headers: {
@@ -332,29 +346,12 @@ export function usePrayerPoints(): UsePrayerPointsReturn {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Failed to update prayer');
       }
-
-      // Update local state immediately for better UX
-      // Convert string dates to Date objects for local state
-      const localUpdates: Partial<PrayerPoint> = {
-        ...updates,
-        lastTimePrayed: typeof updates.lastTimePrayed === 'string' 
-          ? new Date(updates.lastTimePrayed)
-          : updates.lastTimePrayed
-      };
-      
-      setPrayersState(prev => 
-        prev.map(prayer => 
-          prayer.id === id ? { ...prayer, ...localUpdates } : prayer
-        )
-      );
       
     } catch (error) {
       console.error('Error updating prayer:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to update prayer');
       // Refresh on error to ensure consistency
       await loadPrayers();
-    } finally {
-      setLoading(false);
     }
   }, [user, loadPrayers]);
 

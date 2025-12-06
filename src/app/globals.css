@@ -1,38 +1,38 @@
 @import "tailwindcss";
 
 :root {
-  --color-background: #f9fafb;
-  --color-foreground: #171717;
+  --color-background: #fdf9f5;
+  --color-foreground: #2d1b13;
   --font-sans: system-ui, sans-serif;
   
-  /* Primary color palette */
-  --color-primary: #6366f1;
-  --color-primary-hover: #5b21b6;
-  --color-primary-light: #e0e7ff;
-  --color-primary-dark: #4338ca;
+  /* Primary color palette - Warm Terracotta */
+  --color-primary: #c2754f;
+  --color-primary-hover: #a85d3a;
+  --color-primary-light: #f4e6d9;
+  --color-primary-dark: #8b4513;
   
-  /* Secondary color palette */
-  --color-secondary: #64748b;
-  --color-secondary-hover: #475569;
-  --color-secondary-light: #f1f5f9;
-  --color-secondary-dark: #334155;
+  /* Secondary color palette - Sage Green */
+  --color-secondary: #7d8471;
+  --color-secondary-hover: #6b7059;
+  --color-secondary-light: #f0f2ee;
+  --color-secondary-dark: #5a5f4e;
 }
 
 .dark {
-  --color-background: #111827;
-  --color-foreground: #f9fafb;
+  --color-background: #1a1511;
+  --color-foreground: #f4e6d9;
   
-  /* Adjust primary colors for dark mode */
-  --color-primary: #818cf8;
-  --color-primary-hover: #6366f1;
-  --color-primary-light: #312e81;
-  --color-primary-dark: #a5b4fc;
+  /* Adjust primary colors for dark mode - Warmer terracotta tones */
+  --color-primary: #d4956f;
+  --color-primary-hover: #c2754f;
+  --color-primary-light: #2d1a12;
+  --color-primary-dark: #f4e6d9;
   
-  /* Adjust secondary colors for dark mode */
-  --color-secondary: #94a3b8;
-  --color-secondary-hover: #cbd5e1;
-  --color-secondary-light: #1e293b;
-  --color-secondary-dark: #f8fafc;
+  /* Adjust secondary colors for dark mode - Muted sage */
+  --color-secondary: #9ba389;
+  --color-secondary-hover: #b8c5a6;
+  --color-secondary-light: #1a1d17;
+  --color-secondary-dark: #f0f2ee;
 }
 
 body {
@@ -41,6 +41,64 @@ body {
   font-family: var(--font-sans);
   min-height: 100vh;
   transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+/* Make all buttons show pointer cursor by default */
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+/* Mobile-first responsive design improvements */
+@media (max-width: 640px) {
+  /* Prevent text from becoming too small on mobile */
+  body {
+    font-size: 16px; /* Ensures minimum readable font size */
+  }
+  
+  /* Navigation improvements for mobile */
+  nav {
+    padding: 0 1rem; /* Ensure adequate padding */
+  }
+  
+  /* Prevent cards from shrinking too much */
+  .card, [class*="card"], .bg-white, .dark .bg-white {
+    min-width: 280px; /* Minimum card width */
+    padding: 1rem; /* Adequate padding for mobile */
+  }
+  
+  /* Ensure navigation items don't get too cramped */
+  nav .flex.items-center.space-x-4 > * {
+    margin: 0 0.25rem; /* Reduce spacing between nav items on mobile */
+  }
+  
+  /* Prevent buttons from becoming too small */
+  button {
+    min-height: 44px; /* Apple's recommended minimum touch target */
+    min-width: 44px;
+    padding: 0.5rem 0.75rem;
+  }
+  
+  /* Improve text readability on mobile */
+  h1, h2, h3, h4, h5, h6 {
+    line-height: 1.3;
+  }
+  
+  /* Prevent horizontal overflow */
+  * {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+/* Tablet improvements */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .card, [class*="card"], .bg-white, .dark .bg-white {
+    min-width: 320px;
+  }
 }
 
 html {
@@ -112,6 +170,39 @@ html {
   --tw-ring-color: var(--color-secondary);
 }
 
+/* Additional warm background utilities */
+.bg-warm {
+  background-color: #fdf9f5; /* Light cream */
+}
+
+.bg-warm-50 {
+  background-color: #fcf7f2; /* Very light cream */
+}
+
+.bg-warm-100 {
+  background-color: #f8f0e8; /* Soft cream */
+}
+
+.bg-warm-200 {
+  background-color: #f1e4d6; /* Light beige */
+}
+
+.dark .bg-warm {
+  background-color: #1a1511; /* Dark warm background */
+}
+
+.dark .bg-warm-50 {
+  background-color: #201a15; /* Slightly lighter dark warm */
+}
+
+.dark .bg-warm-100 {
+  background-color: #2d1f19; /* Medium dark warm */
+}
+
+.dark .bg-warm-200 {
+  background-color: #3d2e24; /* Lighter dark warm */
+}
+
 /* Add spinner animation if it's not already included by Tailwind */
 @keyframes spin {
   from {
@@ -124,33 +215,33 @@ html {
 
 .spinner {
   border-color: #e5e7eb;
-  border-top-color: #6366f1;
+  border-top-color: #c2754f;
   animation: spin 1s linear infinite;
 }
 
 /* Dark mode improvements for components */
 .dark .bg-white {
-  background-color: #1f2937; /* gray-800 */
+  background-color: #2d1f19; /* Warm dark brown */
 }
 
 .dark .text-gray-900 {
-  color: #f9fafb; /* gray-50 */
+  color: #f4e6d9; /* Warm cream */
 }
 
 .dark .text-gray-700 {
-  color: #d1d5db; /* gray-300 */
+  color: #d4c4b0; /* Warm light brown */
 }
 
 .dark .text-gray-500 {
-  color: #9ca3af; /* gray-400 */
+  color: #a8967f; /* Muted warm brown */
 }
 
 .dark .border-gray-200 {
-  border-color: #374151; /* gray-700 */
+  border-color: #3d2e24; /* Warm dark border */
 }
 
 .dark .border-gray-300 {
-  border-color: #4b5563; /* gray-600 */
+  border-color: #4a392b; /* Slightly lighter warm border */
 }
 
 .dark .shadow,
@@ -160,19 +251,19 @@ html {
 
 /* Spinner dark mode */
 .dark .spinner {
-  border-color: #374151;
+  border-color: #3d2e24;
   border-top-color: var(--color-primary);
 }
 
 /* Ensure Tailwind dark mode classes work properly */
 .dark .bg-gray-50 {
-  background-color: #374151; /* gray-700 */
+  background-color: #3d2e24; /* Warm dark background */
 }
 
 .dark .text-gray-500 {
-  color: #9ca3af; /* gray-400 */
+  color: #a8967f; /* Warm muted text */
 }
 
 .dark .text-gray-600 {
-  color: #d1d5db !important; /* gray-300 */
+  color: #d4c4b0 !important; /* Warm light text */
 }

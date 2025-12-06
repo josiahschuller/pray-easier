@@ -1,9 +1,10 @@
 import { supabaseService } from '@/services/supabase';
 import { NextResponse } from 'next/server';
 
-export async function authoriseRequest(authHeader: string | null, userId: string | null) {
+export async function authoriseRequest(authHeader: string | null, userId: string | null): Promise<NextResponse | null> {
   /*
   Authorise a request by checking the authorization header and user ID in query parameters.
+  Returns null if authorization succeeds, or a NextResponse if it fails.
   */
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return NextResponse.json(
@@ -36,4 +37,7 @@ export async function authoriseRequest(authHeader: string | null, userId: string
       { status: 401 }
     );
   }
+  
+  // Authorization successful
+  return null;
 }

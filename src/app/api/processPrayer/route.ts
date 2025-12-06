@@ -3,12 +3,18 @@ import { openAIService } from '@/services/openai';
 import { authoriseRequest } from '@/utils/authoriseRequest';
 
 export async function POST(request: Request) {
-  const userId = (new URL(request.url)).searchParams.get('userId');
-  authoriseRequest(
-      request.headers.get('authorization'),
-      userId,
-  );
   try {
+    const userId = (new URL(request.url)).searchParams.get('userId');
+    const authResult = await authoriseRequest(
+        request.headers.get('authorization'),
+        userId,
+    );
+    
+    // If authorization failed, return the error response
+    if (authResult) {
+      return authResult;
+    }
+  
     const { text } = await request.json();
     
     if (!text || typeof text !== 'string') {
