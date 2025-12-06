@@ -76,7 +76,7 @@ export class OpenAIService {
       throw new Error('Missing env.OPENAI_API_KEY');
     }
 
-    this.model = "gpt-5-nano"; // Fixed model name
+    this.model = "gpt-4.1-nano"; // Fixed model name
     this.apiKey = process.env.OPENAI_API_KEY;
     this.systemPrompt = SYSTEM_PROMPT;
   }
