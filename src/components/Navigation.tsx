@@ -97,7 +97,7 @@ export function Navigation({ newPrayerPointsBeingModified = false }: NavigationP
   ];
 
   return (
-    <nav className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+    <nav className="bg-warm-50 dark:bg-warm-100 shadow-sm border-b border-gray-200 dark:border-gray-700">
       <div className="max-w-7xl mx-0 sm:mx-auto px-0 sm:px-2 lg:px-8">
         {/* Desktop Navigation */}
         <div className="flex justify-between h-16">
@@ -210,7 +210,7 @@ export function Navigation({ newPrayerPointsBeingModified = false }: NavigationP
                 : 'max-h-0 opacity-0 transform -translate-y-2'
             }`}
           >
-            <div className="px-0 pt-2 pb-3 space-y-1 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+            <div className="px-0 pt-2 pb-3 space-y-1 bg-warm-50 dark:bg-warm-100 border-t border-gray-200 dark:border-gray-700">
               {navItems.map((item, index) => (
                 <div
                   key={item.view}
