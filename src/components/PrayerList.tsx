@@ -20,14 +20,14 @@ interface PrayerItemProps {
 }
 
 /**
- * Individual prayer item — subtle icon-only actions to keep focus on the prayer.
+ * Individual prayer item — compact layout with always-visible action button.
  */
 function PrayerItem({ prayer, onResolve, onUnarchive, isUpdating = false }: PrayerItemProps) {
   const isArchived = prayer.status === PrayerPointStatus.ARCHIVED;
   const onClick = isArchived ? onUnarchive : onResolve;
 
   return (
-    <div className="group flex items-start justify-between gap-4 py-2">
+    <div className="flex items-start justify-between gap-3 py-2">
       <p className={`text-base text-gray-700 dark:text-gray-300 leading-relaxed ${isArchived ? 'line-through opacity-50' : ''}`}>
         {prayer.content}
       </p>
@@ -35,23 +35,15 @@ function PrayerItem({ prayer, onResolve, onUnarchive, isUpdating = false }: Pray
       <button
         onClick={() => onClick?.(prayer.id)}
         disabled={isUpdating}
-        title={isArchived ? UNARCHIVE_BUTTON_TEXT : ARCHIVE_BUTTON_TEXT}
-        className="flex-shrink-0 mt-0.5 p-1 rounded-full opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50"
+        className={`flex-shrink-0 px-3 py-1 text-xs font-medium rounded-full border transition-colors ${
+          isUpdating
+            ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+            : isArchived
+              ? 'text-emerald-700 bg-emerald-50 border-emerald-200 hover:bg-emerald-100 dark:text-emerald-400 dark:bg-emerald-900/20 dark:border-emerald-800 dark:hover:bg-emerald-900/40'
+              : 'text-gray-500 bg-gray-50 border-gray-200 hover:bg-gray-100 dark:text-gray-400 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700'
+        }`}
       >
-        {isUpdating ? (
-          <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-          </svg>
-        ) : isArchived ? (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-          </svg>
-        ) : (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-          </svg>
-        )}
+        {isUpdating ? '...' : isArchived ? UNARCHIVE_BUTTON_TEXT : ARCHIVE_BUTTON_TEXT}
       </button>
     </div>
   );
@@ -206,15 +198,17 @@ export function PrayerList() {
     <div className="space-y-6">
       {/* Stats bar */}
       {prayers.length > 0 && (
-        <div className="flex flex-wrap gap-4 text-sm text-gray-500 dark:text-gray-400">
-          <span>{activePrayers.length} active prayer{activePrayers.length !== 1 ? 's' : ''}</span>
-          <span>·</span>
-          <span>{categoryCount} categor{categoryCount !== 1 ? 'ies' : 'y'}</span>
+        <div className="flex flex-wrap gap-2 text-sm text-gray-500 dark:text-gray-400">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 font-medium">
+            {activePrayers.length} active
+          </span>
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300 font-medium">
+            {categoryCount} categories
+          </span>
           {archivedPrayers.length > 0 && (
-            <>
-              <span>·</span>
-              <span>{archivedPrayers.length} archived</span>
-            </>
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gray-50 dark:bg-gray-800/50 text-gray-500 dark:text-gray-400 font-medium">
+              {archivedPrayers.length} archived
+            </span>
           )}
         </div>
       )}
