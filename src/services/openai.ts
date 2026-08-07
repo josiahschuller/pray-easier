@@ -1,62 +1,26 @@
-const SYSTEM_PROMPT = `You are a helpful assistant that organises text into individual categorised prayer points. Use simple language.
-Categories should be one of: 'Praise', 'Confession', 'Guidance', 'Healing', 'Family', 'Church', 'Work', 'School', 'World', 'Friends', 'Thanksgiving', 'Supplication'. Each prayer point can only have one category. If multiple categories apply, pick one that matches best.
-Return the response as a JSON array of objects with 'category' and 'content' properties.
+const SYSTEM_PROMPT = `Turn the user's text into separate, concise prayer points.
 
-Examples:
+Use exactly one of these categories for each point:
+Praise, Confession, Guidance, Healing, Family, Church, Work, School, World, Friends, Thanksgiving, Supplication.
 
-Example 1:
-Input:
-"My dog is sick"
+Preserve the user's meaning and details. If the text contains multiple requests, people, situations, or reasons, create separate points. Choose the best single category when categories overlap.
 
-Response:
+Write in simple, direct, natural English. Use plain prayer wording such as "Please help...", "Please heal...", or "Thank you for..." when appropriate. Avoid flowery, archaic, poetic, or overly formal language. Do not add ideas that are not in, or clearly implied by, the input.
+
+Return valid JSON only, with no Markdown or explanation, in this exact shape:
 {
   "prayers": [
     {
-      "category": "Healing",
-      "content": "Please heal my sick dog. Bring comfort and health to my pet."
+      "category": "OneAllowedCategory",
+      "content": "A simple, direct prayer point."
     }
   ]
 }
 
-Example 2:
-Input:
-"National election is coming up"
-
-Response:
-{
-  "prayers": [
-    {
-      "category": "World",
-      "content": "Please help the election process to be smooth and fair."
-    },
-    {
-      "category": "World",
-      "content": "Please appoint a candidate who will perform his office justly, fairly, without corruption."
-    }
-  ]
-}
-
-Example 3:
-Input:
-"I passed my maths test on Friday"
-
-Response:
-{
-  "prayers": [
-    {
-      "category": "School",
-      "content": "Thank you for enabling me to pass my maths test on Friday."
-    },
-    {
-      "category": "School",
-      "content": "Please help me to retain the maths knowledge that I have learned."
-    }
-  ]
-}
-`;
+Each item must contain only "category" and "content". Use an empty array when there are no meaningful prayer points: {"prayers":[]}.`;
 
 /**
- * Prayer point structure returned by OpenAI processing
+ * Prayer point structure returned by the LLM processing service.
  */
 export interface ProcessedPrayerPoint {
   category: string;
@@ -64,65 +28,71 @@ export interface ProcessedPrayerPoint {
 }
 
 /**
- * OpenAI service for processing prayer text and organizing prayer points
+ * OpenRouter service for processing prayer text and organising prayer points.
  */
-export class OpenAIService {
-  private model: string;
-  private apiKey: string;
-  private systemPrompt: string;
+export class OpenRouterService {
+  private readonly model = 'google/gemini-3.1-flash-lite';
+  private readonly systemPrompt = SYSTEM_PROMPT;
 
-  constructor() {
-    if (!process.env.OPENAI_API_KEY) {
-      throw new Error('Missing env.OPENAI_API_KEY');
+  private getApiKey(): string {
+    const apiKey = process.env.OPENROUTER_API_KEY;
+    if (!apiKey) {
+      throw new Error('Missing env.OPENROUTER_API_KEY');
     }
-
-    this.model = "gpt-4.1-nano"; // Fixed model name
-    this.apiKey = process.env.OPENAI_API_KEY;
-    this.systemPrompt = SYSTEM_PROMPT;
+    return apiKey;
   }
 
   /**
-   * Process prayer text and organise it into categorized prayer points
-   * @param text - The input text to process into prayer points
-   * @returns Array of categorized prayer points
+   * Process prayer text and organise it into categorised prayer points.
    */
   async processPrayerText(text: string): Promise<ProcessedPrayerPoint[]> {
     try {
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.apiKey}`,
+          Authorization: `Bearer ${this.getApiKey()}`,
         },
         body: JSON.stringify({
           model: this.model,
           messages: [
-            {
-              role: "system",
-              content: this.systemPrompt
-            },
-            {
-              role: "user",
-              content: text
-            }
+            { role: 'system', content: this.systemPrompt },
+            { role: 'user', content: text },
           ],
-          response_format: { type: "json_object" }
-        })
+          response_format: { type: 'json_object' },
+          // This task is simple classification and rewriting, so use the
+          // lowest Gemini thinking level to reduce latency and cost.
+          reasoning: {
+            effort: 'minimal',
+            exclude: true,
+          },
+          // Prefer the fastest available OpenRouter provider for this model.
+          provider: {
+            sort: 'throughput',
+          },
+          temperature: 0.2,
+          max_tokens: 600,
+        }),
       });
 
       if (!response.ok) {
-        throw new Error(`OpenAI API error: ${response.status} ${response.statusText}`);
+        throw new Error(`OpenRouter API error: ${response.status} ${response.statusText}`);
       }
 
       const data = await response.json();
-      const result = JSON.parse(data.choices[0].message.content || '{"prayers": []}');
-      return result.prayers || [];
+      const content = data.choices?.[0]?.message?.content;
+      const result = JSON.parse(content || '{"prayers":[]}');
+      return Array.isArray(result.prayers) ? result.prayers : [];
     } catch (error) {
-      console.error('Error processing prayer text with OpenAI:', error);
+      console.error('Error processing prayer text with OpenRouter:', error);
       throw new Error('Failed to process prayer text');
     }
   }
 }
 
-// Create and export a singleton instance
-export const openAIService = new OpenAIService();
+// Create and export a singleton instance.
+export const openRouterService = new OpenRouterService();
+
+// Kept as an alias to avoid breaking any external imports during the provider migration.
+export const openAIService = openRouterService;
+export { SYSTEM_PROMPT };
