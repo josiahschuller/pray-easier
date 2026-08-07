@@ -87,14 +87,16 @@ interface CurrentPrayerDisplayProps {
  */
 function CurrentPrayerDisplay({ prayer, isTransitioning }: CurrentPrayerDisplayProps) {
   return (
-    <div className={`text-center py-8 transition-opacity duration-300 ${isTransitioning ? 'opacity-30' : 'opacity-100'}`}>      
+    <div className={`text-center py-8 transition-opacity duration-300 ${isTransitioning ? 'opacity-30' : 'opacity-100'}`}>
       <div className="mb-8">
         <p className="text-lg text-gray-900 dark:text-gray-100 leading-relaxed mb-2">
           {prayer.content}
         </p>
-        <p className="text-sm text-gray-500 dark:text-gray-400 capitalize">
-          Category: {prayer.categoryName || 'Uncategorized'}
-        </p>
+        {(prayer.prayerType || prayer.prayerTheme) && (
+          <p className="text-sm text-gray-500 dark:text-gray-400 capitalize">
+            {[prayer.prayerType, prayer.prayerTheme].filter(Boolean).join(' · ')}
+          </p>
+        )}
       </div>
     </div>
   );
@@ -123,7 +125,7 @@ function SessionControls({ onNext, onArchive, onEnd, isTransitioning }: SessionC
           {isTransitioning ? 'Loading...' : 'Next Prayer'}
         </button>
       </div>
-      
+
       {/* Secondary actions - smaller and side by side */}
       <div className="flex justify-center space-x-4">
         <button
@@ -155,7 +157,7 @@ function formatDuration(startTime: Date, endTime: Date): string {
   const durationMs = endTime.getTime() - startTime.getTime();
   const minutes = Math.floor(durationMs / 60000);
   const seconds = Math.floor((durationMs % 60000) / 1000);
-  
+
   if (minutes > 0) {
     return `${minutes} minute${minutes !== 1 ? 's' : ''} ${seconds} second${seconds !== 1 ? 's' : ''}`;
   } else {
@@ -170,8 +172,8 @@ function formatDuration(startTime: Date, endTime: Date): string {
  * @returns Random prayer or null if none available
  */
 function getRandomPrayer(prayers: PrayerPointWithCategory[], excludeIds: number[]): PrayerPointWithCategory | null {
-  const availablePrayers = prayers.filter(prayer => 
-    prayer.status === PrayerPointStatus.ACTIVE && 
+  const availablePrayers = prayers.filter(prayer =>
+    prayer.status === PrayerPointStatus.ACTIVE &&
     !excludeIds.includes(prayer.id)
   );
 
@@ -203,7 +205,7 @@ export function PrayerSession() {
     try {
       // Check if there are any active prayers available
       const activePrayers = prayers.filter(prayer => prayer.status === PrayerPointStatus.ACTIVE);
-      
+
       if (activePrayers.length === 0) {
         toast.error('No active prayer points available. Please add some prayers first.');
         return;
@@ -217,7 +219,7 @@ export function PrayerSession() {
       setPrayedPrayerIds([]);
       setShowSessionSummary(false);
       setSessionSummary(null);
-      
+
       // Select the first prayer
       const selectedPrayer = getRandomPrayer(activePrayers, []);
       if (selectedPrayer) {
@@ -263,7 +265,7 @@ export function PrayerSession() {
     if (!sessionId) return;
 
     setIsTransitioning(true);
-    
+
     try {
       // Mark the current prayer as prayed
       if (currentPrayer) {
@@ -307,7 +309,7 @@ export function PrayerSession() {
 
       // Get next available prayer (excluding the one we just archived)
       const selectedPrayer = getRandomPrayer(
-        prayers.filter(p => p.id !== currentPrayer.id), 
+        prayers.filter(p => p.id !== currentPrayer.id),
         prayedPrayerIds
       );
 
@@ -356,8 +358,8 @@ export function PrayerSession() {
               Prayed {prayedPrayerIds.length - 1} prayer point{prayedPrayerIds.length - 1 !== 1 ? 's' : ''}
             </div>
           </div>
-          <CurrentPrayerDisplay 
-            prayer={currentPrayer} 
+          <CurrentPrayerDisplay
+            prayer={currentPrayer}
             isTransitioning={isTransitioning}
           />
           <SessionControls

@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import toast from 'react-hot-toast';
-import type { PrayerPoint, PrayerCategory, PrayerPointStatus } from '@/types/database';
+import type { PrayerPoint, PrayerCategory, PrayerPointStatus, PrayerType, PrayerTheme } from '@/types/database';
 
 /**
  * Extended PrayerPoint type that includes category name for easier display
@@ -29,7 +29,7 @@ interface UsePrayerPointsReturn {
   /** Manually refresh prayers and categories from server */
   refresh: () => Promise<void>;
   /** Add a new prayer point */
-  addPrayer: (content: string, categoryName: string) => Promise<void>;
+  addPrayer: (content: string, prayerType: PrayerType, prayerTheme: PrayerTheme) => Promise<void>;
   /** Update an existing prayer point */
   updatePrayer: (id: number, updates: PrayerPointUpdatePayload) => Promise<void>;
   /** Delete a prayer point */
@@ -58,6 +58,8 @@ interface PrayerPointUpdatePayload {
   content?: string;
   status?: PrayerPointStatus;
   lastTimePrayed?: string | Date;
+  prayerType?: PrayerType;
+  prayerTheme?: PrayerTheme;
 }
 
 /**
@@ -225,7 +227,8 @@ export function usePrayerPoints(): UsePrayerPointsReturn {
    * @description If the category exists, creates the prayer point immediately. 
    * If the category doesn't exist, creates the category first, then creates the prayer point.
    */
-  const addPrayer = useCallback(async (content: string, categoryName: string) => {
+  const addPrayer = useCallback(async (content: string, prayerType: PrayerType, prayerTheme: PrayerTheme) => {
+    const categoryName = 'Uncategorized';
     if (!user) return;
 
     try {
@@ -244,7 +247,7 @@ export function usePrayerPoints(): UsePrayerPointsReturn {
           },
           body: JSON.stringify({
             prayerCategories: [],
-            prayerPoints: [{ categoryId: existingCategory.id, content }],
+            prayerPoints: [{ categoryId: existingCategory.id, content, prayerType, prayerTheme }],
           }),
         });
 
@@ -286,7 +289,7 @@ export function usePrayerPoints(): UsePrayerPointsReturn {
           },
           body: JSON.stringify({
             prayerCategories: [],
-            prayerPoints: [{ categoryId: newCategory.id, content }],
+            prayerPoints: [{ categoryId: newCategory.id, content, prayerType, prayerTheme }],
           }),
         });
 

@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import { User, PrayerCategory, PrayerPoint, PrayerPointStatus } from '@/types/database';
+import { User, PrayerCategory, PrayerPoint, PrayerPointStatus, PrayerType, PrayerTheme } from '@/types/database';
 
 class SupabaseService {
   supabase;
@@ -124,12 +124,14 @@ class SupabaseService {
     return data as PrayerPoint[];
   }
 
-  createPrayerPoint = async (categoryId: number, content: string): Promise<PrayerPoint> => {
+  createPrayerPoint = async (categoryId: number, content: string, prayerType?: PrayerType, prayerTheme?: PrayerTheme): Promise<PrayerPoint> => {
     const { data, error } = await this.supabase
       .from('prayerPoints')
-      .insert([{ 
-        categoryId, 
+      .insert([{
+        categoryId,
         content: content,
+        prayerType,
+        prayerTheme,
         status: PrayerPointStatus.ACTIVE
       }])
       .select()
@@ -154,31 +156,37 @@ class SupabaseService {
   }
 
   updatePrayerPoint = async (
-    prayerPointId: number, 
-    categoryId?: number, 
-    content?: string, 
-    status?: PrayerPointStatus, 
-    lastTimePrayed?: string
+    prayerPointId: number,
+    categoryId?: number,
+    content?: string,
+    status?: PrayerPointStatus,
+    lastTimePrayed?: string,
+    prayerType?: PrayerType,
+    prayerTheme?: PrayerTheme
   ): Promise<PrayerPoint | null> => {
     // Create an update object with only the provided fields
-    const updateData: { 
+    const updateData: {
       categoryId?: number;
-      content?: string; 
-      status?: PrayerPointStatus; 
+      content?: string;
+      status?: PrayerPointStatus;
       lastTimePrayed?: string;
+      prayerType?: PrayerType;
+      prayerTheme?: PrayerTheme;
     } = {};
-    
+
     // Only add properties to the update object if they are provided
     if (categoryId !== undefined) updateData.categoryId = categoryId;
     if (content !== undefined) updateData.content = content;
     if (status !== undefined) updateData.status = status;
     if (lastTimePrayed !== undefined) updateData.lastTimePrayed = lastTimePrayed;
-    
+    if (prayerType !== undefined) updateData.prayerType = prayerType;
+    if (prayerTheme !== undefined) updateData.prayerTheme = prayerTheme;
+
     // Only proceed with the update if there are fields to update
     if (Object.keys(updateData).length === 0) {
       return null; // Nothing to update
     }
-    
+
     const { data, error } = await this.supabase
       .from('prayerPoints')
       .update(updateData)

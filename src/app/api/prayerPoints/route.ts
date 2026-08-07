@@ -1,7 +1,7 @@
 import { supabaseService } from '@/services/supabase';
 import { NextResponse } from 'next/server';
 import { authoriseRequest } from '@/utils/authoriseRequest';
-import { PrayerCategory, PrayerPoint, PrayerPointStatus } from '@/types/database';
+import { PrayerCategory, PrayerPoint, PrayerPointStatus, PrayerType, PrayerTheme } from '@/types/database';
 
 export async function GET(request: Request) {
   const userId = (new URL(request.url)).searchParams.get('userId');
@@ -85,11 +85,13 @@ export async function POST(request: Request) {
     // Create prayer points and collect the results
     const createdPrayerPoints: PrayerPoint[] = [];
     if (prayerPoints && prayerPoints.length > 0) {
-      const pointPromises = prayerPoints.map(async (point: { categoryId: number, content: string }) => {
+      const pointPromises = prayerPoints.map(async (point: { categoryId: number, content: string, prayerType?: PrayerType, prayerTheme?: PrayerTheme }) => {
         // Create a new prayer point for the specified category
         const newPoint = await supabaseService.createPrayerPoint(
           point.categoryId,
-          point.content
+          point.content,
+          point.prayerType,
+          point.prayerTheme
         );
         return newPoint;
       });
@@ -220,14 +222,18 @@ export async function PATCH(request: Request) {
         categoryId?: number,
         content?: string,
         status?: PrayerPointStatus,
-        lastTimePrayed?: string
+        lastTimePrayed?: string,
+        prayerType?: PrayerType,
+        prayerTheme?: PrayerTheme
       }) => {
         return await supabaseService.updatePrayerPoint(
           point.id,
           point.categoryId,
           point.content,
           point.status,
-          point.lastTimePrayed
+          point.lastTimePrayed,
+          point.prayerType,
+          point.prayerTheme
         );
       });
       await Promise.all(pointUpdates);
