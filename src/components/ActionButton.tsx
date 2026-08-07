@@ -55,7 +55,7 @@ export function ActionButton({
   return (
     <button
       onClick={onClick}
-      className={`group w-full text-left p-6 border-l-4 ${borderColor} bg-linear-to-r ${gradientFrom} to-transparent hover:${gradientHoverFrom} transition-all duration-200 hover:shadow-lg dark:bg-black`}
+      className={`action-button group w-full text-left p-6 border-l-4 ${borderColor} bg-linear-to-r ${gradientFrom} to-transparent ${gradientHoverFrom} transition-all duration-200 hover:shadow-lg`}
     >
       <div className="flex items-center justify-between">
         {/* Left side: Icon and text content */}

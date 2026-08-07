@@ -224,6 +224,26 @@ html {
   background-color: #2d1f19; /* Warm dark brown */
 }
 
+/* Dashboard stat pills use distinct dark-mode colors instead of mirroring light mode. */
+html.dark .dashboard-stat-active {
+  background-color: #5a2818 !important;
+  color: #fed7aa !important;
+}
+
+html.dark .dashboard-stat-categories {
+  background-color: #26354a !important;
+  color: #cbd5e1 !important;
+}
+
+/* Dashboard action buttons keep their light gradients only in light mode. */
+html.dark .action-button {
+  background: #2d1f19 !important;
+}
+
+html.dark .action-button:hover {
+  background: #3d2e24 !important;
+}
+
 .dark .text-gray-900 {
   color: #f4e6d9; /* Warm cream */
 }

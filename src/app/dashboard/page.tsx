@@ -43,7 +43,7 @@ export default function DashboardPage() {
   const archivedCount = prayers.filter(p => p.status === PrayerPointStatus.ARCHIVED).length;
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-white dark:bg-gray-900">
       <Navigation />
 
       <main className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
@@ -56,10 +56,10 @@ export default function DashboardPage() {
         {/* Quick stats */}
         {!prayersLoading && prayers.length > 0 && (
           <div className="mb-8 flex flex-wrap gap-2">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-50 dark:bg-orange-900/30 text-sm text-orange-700 dark:text-orange-300">
+            <span className="dashboard-stat dashboard-stat-active inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-50 dark:bg-orange-900/30 text-sm text-orange-700 dark:text-orange-300">
               {activeCount} active
             </span>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-50 dark:bg-slate-800/50 text-sm text-slate-600 dark:text-slate-300">
+            <span className="dashboard-stat dashboard-stat-categories inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-50 dark:bg-slate-800/50 text-sm text-slate-600 dark:text-slate-300">
               {categoryCount} categories
             </span>
             {archivedCount > 0 && (
@@ -85,8 +85,8 @@ export default function DashboardPage() {
             iconBgColor="bg-orange-100 dark:bg-orange-900/40"
             iconHoverBgColor="group-hover:bg-orange-200 dark:group-hover:bg-orange-900/60"
             textHoverColor="group-hover:text-orange-600 dark:group-hover:text-orange-400"
-            gradientFrom="from-orange-100 dark:bg-orange-50"
-            gradientHoverFrom="hover:from-orange-100 dark:hover:bg-orange-100"
+            gradientFrom="from-orange-100"
+                        gradientHoverFrom="hover:from-orange-100"
             arrowHoverColor="group-hover:text-orange-600 dark:group-hover:text-orange-400"
           />
 
@@ -103,8 +103,8 @@ export default function DashboardPage() {
             iconBgColor="bg-slate-100 dark:bg-slate-800/40"
             iconHoverBgColor="group-hover:bg-slate-200 dark:group-hover:bg-slate-800/60"
             textHoverColor="group-hover:text-slate-600 dark:group-hover:text-slate-400"
-            gradientFrom="from-slate-100 dark:bg-slate-900"
-            gradientHoverFrom="hover:from-slate-100 dark:hover:bg-slate-900"
+            gradientFrom="from-slate-100"
+                        gradientHoverFrom="hover:from-slate-100"
             arrowHoverColor="group-hover:text-slate-600 dark:group-hover:text-slate-400"
           />
 
@@ -121,8 +121,8 @@ export default function DashboardPage() {
             iconBgColor="bg-emerald-100 dark:bg-emerald-900/30"
             iconHoverBgColor="group-hover:bg-emerald-100 dark:group-hover:bg-emerald-900/50"
             textHoverColor="group-hover:text-emerald-700 dark:group-hover:text-emerald-400"
-            gradientFrom="from-emerald-50 dark:bg-emerald-950"
-            gradientHoverFrom="hover:from-emerald-100 dark:hover:bg-emerald-950"
+            gradientFrom="from-emerald-50"
+                        gradientHoverFrom="hover:from-emerald-100"
             arrowHoverColor="group-hover:text-emerald-700 dark:group-hover:text-emerald-400"
           />
         </div>
