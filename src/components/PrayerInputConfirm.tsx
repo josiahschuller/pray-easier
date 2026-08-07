@@ -2,8 +2,7 @@
 
 import { useState } from 'react';
 import { usePrayerPoints } from '@/hooks/usePrayerPoints';
-import { ProcessedPrayer } from '@/types/database';
-import { ARCHIVED_SECTION_TEXT } from '@/utils/constants';
+import { ProcessedPrayer, PRAYER_THEMES, PRAYER_TYPES } from '@/types/database';
 import toast from 'react-hot-toast';
 
 interface PrayerInputConfirmProps {
@@ -15,7 +14,7 @@ interface PrayerInputConfirmProps {
 interface EditablePrayerCardProps {
   prayer: ProcessedPrayer;
   index: number;
-  onEdit: (index: number, field: 'content' | 'category', value: string) => void;
+  onEdit: (index: number, field: 'content' | 'prayerType' | 'prayerTheme', value: string) => void;
   onDelete: (index: number) => void;
 }
 
@@ -53,17 +52,13 @@ function EditablePrayerCard({ prayer, index, onEdit, onDelete }: EditablePrayerC
           />
         </div>
         
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Category
-          </label>
-          <input
-            type="text"
-            value={prayer.category}
-            onChange={(e) => onEdit(index, 'category', e.target.value)}
-            className="focus:ring-primary focus:border-primary block w-full sm:text-sm border border-gray-300 dark:border-gray-600 rounded-md p-3 bg-warm-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
-            placeholder="Enter category..."
-          />
+        <div className="flex flex-wrap gap-2 text-xs">
+          <select aria-label={`Prayer ${index + 1} type`} value={prayer.prayerType} onChange={(e) => onEdit(index, 'prayerType', e.target.value)} className="rounded-full border border-gray-200 dark:border-gray-600 bg-transparent px-2 py-1 capitalize">
+            {PRAYER_TYPES.map(type => <option key={type} value={type}>{type}</option>)}
+          </select>
+          <select aria-label={`Prayer ${index + 1} theme`} value={prayer.prayerTheme} onChange={(e) => onEdit(index, 'prayerTheme', e.target.value)} className="rounded-full border border-gray-200 dark:border-gray-600 bg-transparent px-2 py-1 capitalize">
+            {PRAYER_THEMES.map(theme => <option key={theme} value={theme}>{theme}</option>)}
+          </select>
         </div>
       </div>
     </div>
@@ -122,9 +117,6 @@ function ActionButtons({ onCancel, onSubmit, loading, submitDisabled, submitText
 /**
  * Helper function to validate if a category name is reserved
  */
-function isReservedCategoryName(categoryName: string): boolean {
-  return categoryName.toLowerCase() === ARCHIVED_SECTION_TEXT.toLowerCase();
-}
 
 /**
  * Helper function to generate submit button text
@@ -140,13 +132,7 @@ export function PrayerInputConfirm({ prayers, onConfirm, onCancel }: PrayerInput
   const [editablePrayers, setEditablePrayers] = useState<ProcessedPrayer[]>(prayers);
   const { addPrayer, loading } = usePrayerPoints();
 
-  const handlePrayerChange = (index: number, field: 'content' | 'category', value: string) => {
-    // Prevent using the reserved "Archived" category name
-    if (field === 'category' && isReservedCategoryName(value)) {
-      toast.error(`"${ARCHIVED_SECTION_TEXT}" is a reserved category name. Please choose a different name.`);
-      return;
-    }
-    
+  const handlePrayerChange = (index: number, field: 'content' | 'prayerType' | 'prayerTheme', value: string) => {
     setEditablePrayers(prev => 
       prev.map((prayer, i) => 
         i === index ? { ...prayer, [field]: value } : prayer
@@ -164,18 +150,11 @@ export function PrayerInputConfirm({ prayers, onConfirm, onCancel }: PrayerInput
       return;
     }
 
-    // Check for any prayers using the reserved "Archived" category name
-    const hasReservedCategory = editablePrayers.some(prayer => isReservedCategoryName(prayer.category));
-    
-    if (hasReservedCategory) {
-      toast.error(`"${ARCHIVED_SECTION_TEXT}" is a reserved category name. Please change it before submitting.`);
-      return;
-    }
 
     try {
       // Add each prayer using the hook
       for (const prayer of editablePrayers) {
-        await addPrayer(prayer.content, prayer.category);
+        await addPrayer(prayer.content, prayer.prayerType, prayer.prayerTheme);
       }
 
       toast.success('Prayer points added successfully!');
@@ -193,7 +172,7 @@ export function PrayerInputConfirm({ prayers, onConfirm, onCancel }: PrayerInput
       </h3>
       <div className="mb-6 max-w-xl text-sm text-gray-500 dark:text-gray-400">
         <p>
-          Review the prayer points below. You can edit the content or category, or delete 
+          Review the prayer points below. You can edit the content or delete
           prayer points before submitting them to your prayer list.
         </p>
       </div>

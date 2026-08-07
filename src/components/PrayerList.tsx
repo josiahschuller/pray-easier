@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { usePrayerPoints } from '@/hooks/usePrayerPoints';
-import { PrayerPointStatus, PrayerPoint } from '@/types/database';
+import { PrayerPointStatus, PrayerPoint, PRAYER_THEMES, PRAYER_TYPES } from '@/types/database';
 import { ARCHIVE_BUTTON_TEXT, ARCHIVED_SECTION_TEXT, UNARCHIVE_BUTTON_TEXT } from '@/utils/constants';
 import toast from 'react-hot-toast';
 import Link from 'next/link';
@@ -28,9 +28,16 @@ function PrayerItem({ prayer, onResolve, onUnarchive, isUpdating = false }: Pray
 
   return (
     <div className="flex items-start justify-between gap-3 py-2">
-      <p className={`text-base text-gray-700 dark:text-gray-300 leading-relaxed ${isArchived ? 'line-through opacity-50' : ''}`}>
-        {prayer.content}
-      </p>
+      <div className="min-w-0 flex-1">
+        <p className={`text-base text-gray-700 dark:text-gray-300 leading-relaxed ${isArchived ? 'line-through opacity-50' : ''}`}>
+          {prayer.content}
+        </p>
+        {(prayer.prayerType || prayer.prayerTheme) && (
+          <p className="text-xs text-gray-400 dark:text-gray-500 capitalize mt-1">
+            {[prayer.prayerType, prayer.prayerTheme].filter(Boolean).join(' · ')}
+          </p>
+        )}
+      </div>
 
       <button
         onClick={() => onClick?.(prayer.id)}
@@ -150,6 +157,8 @@ function sortPrayersAlphabetically(prayers: PrayerPointWithCategory[]) {
 export function PrayerList() {
   const { prayers, updatePrayer, loading } = usePrayerPoints();
   const [optimisticUpdates, setOptimisticUpdates] = useState<Set<number>>(new Set());
+  const [typeFilter, setTypeFilter] = useState('all');
+  const [themeFilter, setThemeFilter] = useState('all');
 
   const handleResolve = async (prayerId: number) => {
     setOptimisticUpdates(prev => new Set([...prev, prayerId]));
@@ -190,7 +199,11 @@ export function PrayerList() {
   }
 
   const activePrayers = prayers.filter(prayer => prayer.status !== PrayerPointStatus.ARCHIVED);
-  const groupedActivePrayers = groupPrayersByCategory(activePrayers);
+  const filteredActivePrayers = activePrayers.filter(prayer =>
+    (typeFilter === 'all' || prayer.prayerType === typeFilter) &&
+    (themeFilter === 'all' || prayer.prayerTheme === themeFilter)
+  );
+  const groupedActivePrayers = groupPrayersByCategory(filteredActivePrayers);
   const archivedPrayers = prayers.filter(prayer => prayer.status === PrayerPointStatus.ARCHIVED);
   const categoryCount = Object.keys(groupedActivePrayers).length;
 
@@ -198,6 +211,7 @@ export function PrayerList() {
     <div className="space-y-6">
       {/* Stats bar */}
       {prayers.length > 0 && (
+        <div className="space-y-3">
         <div className="flex flex-wrap gap-2 text-sm text-gray-500 dark:text-gray-400">
           <span className="dashboard-stat dashboard-stat-active inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 font-medium">
             {activePrayers.length} active
@@ -210,6 +224,17 @@ export function PrayerList() {
               {archivedPrayers.length} archived
             </span>
           )}
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <select value={typeFilter} onChange={(event) => setTypeFilter(event.target.value)} aria-label="Filter by prayer type" className="rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-1.5 text-sm text-gray-600 dark:text-gray-300 capitalize">
+            <option value="all">All types</option>
+            {PRAYER_TYPES.map(type => <option key={type} value={type}>{type}</option>)}
+          </select>
+          <select value={themeFilter} onChange={(event) => setThemeFilter(event.target.value)} aria-label="Filter by prayer theme" className="rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-1.5 text-sm text-gray-600 dark:text-gray-300 capitalize">
+            <option value="all">All themes</option>
+            {PRAYER_THEMES.map(theme => <option key={theme} value={theme}>{theme}</option>)}
+          </select>
+        </div>
         </div>
       )}
 
