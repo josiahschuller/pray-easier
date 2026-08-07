@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { openAIService } from '@/services/openai';
+import { openRouterService } from '@/services/openai';
 import { authoriseRequest } from '@/utils/authoriseRequest';
 
 export async function POST(request: Request) {
@@ -24,8 +24,8 @@ export async function POST(request: Request) {
       );
     }
 
-    // Process the prayer text using OpenAI
-    const processedPrayers = await openAIService.processPrayerText(text);
+    // Process the prayer text using OpenRouter
+    const processedPrayers = await openRouterService.processPrayerText(text);
     
     return NextResponse.json({
       prayers: processedPrayers
