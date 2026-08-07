@@ -199,10 +199,10 @@ export function PrayerList() {
       {/* Stats bar */}
       {prayers.length > 0 && (
         <div className="flex flex-wrap gap-2 text-sm text-gray-500 dark:text-gray-400">
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 font-medium">
+          <span className="dashboard-stat dashboard-stat-active inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 font-medium">
             {activePrayers.length} active
           </span>
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300 font-medium">
+          <span className="dashboard-stat dashboard-stat-categories inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300 font-medium">
             {categoryCount} categories
           </span>
           {archivedPrayers.length > 0 && (
